@@ -1,4 +1,3 @@
-#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
 from fastapi import FastAPI, Depends, HTTPException, status, WebSocket
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
