@@ -295,8 +295,8 @@ async def order_ready(shop_name: str, queue_id: int, current_user: User = Depend
         raise HTTPException(status_code=404, detail="Queue item not found")
 
     # Проверяем, является ли текущий пользователь владельцем заказа в очереди
-    if queue_item.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="You are not allowed to mark this order as ready")
+#    if queue_item.user_id != current_user.id:
+#        raise HTTPException(status_code=403, detail="You are not allowed to mark this order as ready")
 
     queue_item.is_order_ready = True
     session.commit()
