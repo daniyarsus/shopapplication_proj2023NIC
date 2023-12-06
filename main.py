@@ -8,7 +8,7 @@ import jwt
 from datetime import datetime, timedelta
 import asyncio
 from fastapi.middleware.cors import CORSMiddleware
-
+from typing import List
 # Database setup
 DATABASE_URL = "sqlite:///./test.db"
 Base = declarative_base()
@@ -78,9 +78,19 @@ class QueueAdd(BaseModel):
     shop_id: int
 
 
+# Pydantic модель для запроса в эндпоинт ready
+class QueueReady(BaseModel):
+    shop_id: int
+    queue_id: int
+
+
+class ShopMenuRequest(BaseModel):
+    shop_id: int
+
+
 # Pydantic model для обновления пароля
 class UpdatePassword(BaseModel):
-#    old_password: str
+    old_password: str
     new_password: str
 
 
@@ -116,7 +126,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     if user is None:
         raise HTTPException(status_code=401, detail="Invalid authentication credentials")
     return user
-
 
 
 # Функция для получения всех пользователей из базы данных
@@ -173,39 +182,31 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@app.get("/me")
+@app.get("/user/me")
 async def read_users_me(current_user: User = Depends(get_current_user)):
     return current_user
 
 
-# Эндпоинт для обновления пароля с подтверждением старого пароля
-#@app.put("/update_password")
-#async def update_password(new_password: UpdatePassword, current_user: User = Depends(get_current_user)):
-#    session = SessionLocal()
-#
-#    # Проверяем, совпадает ли введенный старый пароль с текущим паролем пользователя
-#    if not current_user or current_user.password != new_password.old_password:
-#        raise HTTPException(
-#            status_code=status.HTTP_401_UNAUTHORIZED,
-#            detail="Incorrect old password",
-#            headers={"WWW-Authenticate": "Bearer"},
-#        )
-#
-#    # Обновляем пароль пользователя
-#    current_user.password = new_password.new_password
-#    session.commit()  # Здесь не хватало этой строки
-#
-#    return {"message": "Password updated successfully"}
-
-# Эндпоинт для обновления пароля
-@app.put("/update_password")
-async def update_password(new_password: UpdatePassword, current_user: User = Depends(get_current_user)):
+@app.put("/user/change_password")
+async def change_password(new_password: UpdatePassword, current_user: User = Depends(get_current_user)):
     session = SessionLocal()
 
-    # Обновляем пароль пользователя
-    current_user.password = new_password.new_password
-    session.commit()
+    # Проверяем старый пароль
+    if current_user.password != new_password.old_password:
+        raise HTTPException(status_code=400, detail="Old password is incorrect")
 
+    # Асинхронная функция для изменения пароля пользователя
+    async def update_password(user_id: int, password: str):
+        user_db = session.query(User).filter(User.id == user_id).first()
+        if not user_db:
+            raise HTTPException(status_code=404, detail="User not found")
+        user_db.password = password
+        session.commit()
+
+    # Изменяем пароль текущего пользователя
+    await update_password(current_user.id, new_password.new_password)
+
+    session.close()
     return {"message": "Password updated successfully"}
 
 
@@ -229,10 +230,11 @@ async def create_shop(shop_create: ShopCreate, current_user: User = Depends(get_
 
 
 # Dish endpoints
-@app.post("/dish/{shop_name}/create")
-async def create_dish(shop_name: str, dish_create: DishCreate, current_user: User = Depends(get_current_user)):
+@app.post("/shop/dish/create")
+async def create_dish(dish_create: DishCreate, current_user: User = Depends(get_current_user)):
     session = SessionLocal()
-    shop = session.query(Shop).filter(Shop.name == shop_name).first()
+    shop = session.query(Shop).filter(Shop.id == current_user.shop_id).first()
+
     if not shop:
         raise HTTPException(status_code=404, detail="Shop not found")
 
@@ -246,19 +248,30 @@ async def create_dish(shop_name: str, dish_create: DishCreate, current_user: Use
     return {"dish_id": dish.id, "name": dish.name, "shop_id": dish.shop_id}
 
 
-# Эндпоинт для добавления в очередь
-@app.post("/shop/{shop_name}/queue/add")
-async def add_to_queue(shop_name: str, queue_add: QueueAdd, current_user: User = Depends(get_current_user)):
+@app.post("/shop/menu")
+async def get_menu(shop_menu_request: ShopMenuRequest):
     session = SessionLocal()
-    shop = session.query(Shop).filter(Shop.name == shop_name).first()
 
-    if not shop:
-        raise HTTPException(status_code=404, detail="Shop not found")
+    # Получаем все блюда для конкретного магазина
+    menu_items = session.query(Dish).filter(Dish.shop_id == shop_menu_request.shop_id).all()
+
+    # Закрываем сессию
+    session.close()
+
+    # Формируем результат
+    result = [{"dish_id": item.id, "name": item.name, "shop_id": item.shop_id} for item in menu_items]
+
+    return result
+
+
+# Эндпоинт для добавления в очередь
+@app.post("/shop/queue/add")
+async def add_to_queue(queue_add: QueueAdd, current_user: User = Depends(get_current_user)):
+    session = SessionLocal()
 
     # Проверяем, существует ли уже запись в очереди для текущего пользователя и магазина
     existing_queue_item = session.query(QueueItem).filter(
         QueueItem.user_id == current_user.id,
-        QueueItem.shop_id == shop.id,
         QueueItem.is_order_ready == False  # Проверка, что заказ еще не готов
     ).first()
 
@@ -266,14 +279,14 @@ async def add_to_queue(shop_name: str, queue_add: QueueAdd, current_user: User =
         session.close()
         raise HTTPException(status_code=400, detail="User is already in the queue")
 
-    # Проверяем, существует ли блюдо с указанным ID в выбранном магазине
-    dish = session.query(Dish).filter(Dish.id == queue_add.dish_id, Dish.shop_id == shop.id).first()
+    # Проверяем, существует ли блюдо с указанным ID
+    dish = session.query(Dish).filter(Dish.id == queue_add.dish_id).first()
     if not dish:
         session.close()
         raise HTTPException(status_code=404, detail="Dish not found")
 
     # Создаем запись в очереди
-    queue_item = QueueItem(user_id=current_user.id, shop_id=shop.id)
+    queue_item = QueueItem(user_id=current_user.id, shop_id=dish.shop_id)
     session.add(queue_item)
     session.commit()
     session.refresh(queue_item)
@@ -284,43 +297,67 @@ async def add_to_queue(shop_name: str, queue_add: QueueAdd, current_user: User =
     return {"queue_id": queue_item.id, "message": "You've been added to the queue"}
 
 
-@app.post("/shop/{shop_name}/queue/{queue_id}/ready")
-async def order_ready(shop_name: str, queue_id: int, current_user: User = Depends(get_current_user)):
+@app.post("/shop/queue/ready")
+async def order_ready(queue_ready: QueueReady, current_user: User = Depends(get_current_user)):
     session = SessionLocal()
-    shop = session.query(Shop).filter(Shop.name == shop_name).first()
-    if not shop:
-        raise HTTPException(status_code=404, detail="Shop not found")
-    queue_item = session.query(QueueItem).filter(QueueItem.id == queue_id, QueueItem.shop_id == shop.id).first()
+
+    # Проверяем, привязан ли текущий пользователь к выбранному магазину
+    if current_user.shop_id != queue_ready.shop_id:
+        raise HTTPException(status_code=403, detail="You are not allowed to mark orders as ready for this shop")
+
+    # Получаем запись в очереди
+    queue_item = session.query(QueueItem).filter(
+        QueueItem.id == queue_ready.queue_id,
+        QueueItem.shop_id == queue_ready.shop_id,
+        QueueItem.is_order_ready == False  # Проверка, что заказ еще не готов
+    ).first()
+
     if not queue_item:
+        session.close()
         raise HTTPException(status_code=404, detail="Queue item not found")
 
-    # Проверяем, является ли текущий пользователь владельцем заказа в очереди
-#    if queue_item.user_id != current_user.id:
-#        raise HTTPException(status_code=403, detail="You are not allowed to mark this order as ready")
-
+    # Помечаем заказ как готовый
     queue_item.is_order_ready = True
     session.commit()
-    return {"queue_id": queue_id, "message": "Order is ready for pickup"}
+
+    # Закрываем сессию
+    session.close()
+
+    return {"queue_id": queue_ready.queue_id, "message": "Order is ready for pickup"}
 
 
-@app.get("/shop/{shop_name}/queue/{queue_id}/status")
-async def check_queue_status(shop_name: str, queue_id: int):
+# Измененный эндпоинт для проверки статуса очереди у магазина
+@app.get("/shop/queue/status")
+async def check_shop_queue_status(current_user: User = Depends(get_current_user)):
     session = SessionLocal()
-    shop = session.query(Shop).filter(Shop.name == shop_name).first()
+    shop = session.query(Shop).filter(Shop.id == current_user.shop_id).first()
+
     if not shop:
         raise HTTPException(status_code=404, detail="Shop not found")
-    queue_item = session.query(QueueItem).filter(QueueItem.id == queue_id, QueueItem.shop_id == shop.id).first()
-    if not queue_item:
-        raise HTTPException(status_code=404, detail="Queue item not found")
-    return {"queue_id": queue_id, "is_order_ready": queue_item.is_order_ready}
+
+    # Получаем все записи в очереди для данного магазина с информацией о пользователе,
+    # отсортированные в обратном порядке
+    shop_queue_status = session.query(QueueItem, User).join(User).filter(
+        QueueItem.shop_id == shop.id
+    ).order_by(QueueItem.id.desc()).all()
+
+    # Закрываем сессию
+    session.close()
+
+    # Формируем результат, включая username пользователя в очереди
+    result = [{"queue_id": queue_item.id, "is_order_ready": queue_item.is_order_ready, "username": user.username} for
+              queue_item, user in shop_queue_status]
+
+    return result
 
 
-@app.get("/my_queue_status")
+@app.get("/shop/queue/my_queue_status")
 async def my_queue_status(current_user: User = Depends(get_current_user)):
     session = SessionLocal()
 
-    # Получаем все записи в очереди для текущего пользователя
-    user_queue_status = session.query(QueueItem).filter(QueueItem.user_id == current_user.id).first()
+    # Получаем все записи в очереди для текущего пользователя, отсортированные в обратном порядке
+    user_queue_status = session.query(QueueItem).filter(QueueItem.user_id == current_user.id).order_by(
+        QueueItem.id.desc()).first()
 
     # Закрываем сессию
     session.close()
