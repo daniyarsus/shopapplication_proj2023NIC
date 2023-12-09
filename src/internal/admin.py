@@ -1,9 +1,10 @@
 from fastapi import APIRouter
+
 admin_panel = APIRouter()
 
 import redis
 
-from config.settings import REDIS_URL
+from src.config.settings import REDIS_URL
 @admin_panel.get("/redis/all")
 async def read_all_redis_data():
     try:
