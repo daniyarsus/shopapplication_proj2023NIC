@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker, relationship
 
 # Настройки Redis
 #REDIS_PASSWORD = ""
-REDIS_URL = f"edis://default:eb3ALfHIf6IGn5HmFBpB33aoPNbAfhlm@roundhouse.proxy.rlwy.net:21053"
+REDIS_URL = f"redis://default:eb3ALfHIf6IGn5HmFBpB33aoPNbAfhlm@roundhouse.proxy.rlwy.net:21053"
 redis_client = redis.from_url(REDIS_URL)
 
 # Настройка JWT
