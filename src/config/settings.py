@@ -5,10 +5,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
 # Настройки Redis
-REDIS_HOST = 'roundhouse.proxy.rlwy.net'
-REDIS_PORT = 21053
-REDIS_DB = 0
-redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
+#REDIS_PASSWORD = ""
+REDIS_URL = f"edis://default:eb3ALfHIf6IGn5HmFBpB33aoPNbAfhlm@roundhouse.proxy.rlwy.net:21053"
+redis_client = redis.from_url(REDIS_URL)
 
 # Настройка JWT
 SECRET_KEY = "Iloveuourmom"
