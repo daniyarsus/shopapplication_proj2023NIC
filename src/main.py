@@ -7,6 +7,8 @@ from src.routes.dish import dish_router
 from src.routes.shop import shop_router
 from src.routes.queue import queue_router
 
+from src.internal.admin import admin_panel
+
 app = FastAPI()
 
 
@@ -22,7 +24,7 @@ app.include_router(auth_router)
 app.include_router(dish_router, prefix="/dish", tags=["dish"])
 app.include_router(shop_router, prefix="/shop", tags=["shop"])
 app.include_router(queue_router, prefix="/queue", tags=["queue"])
-
+app.include_router(admin_panel, prefix="/admin", tags=["admin"])
 
 @app.on_event("startup")
 async def startup_event():
