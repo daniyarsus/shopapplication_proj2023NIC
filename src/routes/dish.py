@@ -1,8 +1,9 @@
 from fastapi import Depends, HTTPException, status, Response, APIRouter
 
-from config.dependencies import get_current_user
-from schemas.validators import DishCreate
-from database.models import *
+from src.config.dependencies import get_current_user
+from src.config.settings import SessionLocal
+from src.schemas.validators import DishCreate
+from src.database.models import *
 
 
 dish_router = APIRouter()

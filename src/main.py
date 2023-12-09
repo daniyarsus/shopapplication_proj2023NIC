@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from config.dependencies import init_redis, close_redis
-from routes.auth import auth_router
-from routes.dish import dish_router
-from routes.shop import shop_router
-from routes.queue import queue_router
+from src.config.dependencies import init_redis, close_redis
+from src.routes.auth import auth_router
+from src.routes.dish import dish_router
+from src.routes.shop import shop_router
+from src.routes.queue import queue_router
 
 app = FastAPI()
 
@@ -32,3 +32,4 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     close_redis()
+

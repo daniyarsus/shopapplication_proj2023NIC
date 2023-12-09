@@ -42,6 +42,7 @@ class Dish(Base):
     shop = relationship("Shop")
 
 
+
 # Queue model
 class QueueItem(Base):
     __tablename__ = "queue"
@@ -73,7 +74,6 @@ class ShopCreate(BaseModel):
 
 class DishCreate(BaseModel):
     name: str
-    shop_id: int
 
 
 class QueueAdd(BaseModel):
@@ -254,23 +254,20 @@ async def create_shop(shop_create: ShopCreate, current_user: User = Depends(get_
     return {"shop_id": shop.id, "name": shop.name}
 
 
-# Dish endpoints
 @app.post("/shop/dish/create")
 async def create_dish(dish_create: DishCreate, current_user: User = Depends(get_current_user)):
     session = SessionLocal()
-    shop = session.query(Shop).filter(Shop.id == current_user.shop_id).first()
 
-    if not shop:
-        raise HTTPException(status_code=404, detail="Shop not found")
+    # Ensure the current user has a shop associated
+    if not current_user.shop_id:
+        raise HTTPException(status_code=403, detail="No shop associated with the current user")
 
-    # Проверяем, привязан ли текущий пользователь к выбранному магазину
-    if current_user.shop_id != shop.id:
-        raise HTTPException(status_code=403, detail="You are not allowed to create dishes for this shop")
-
-    dish = Dish(name=dish_create.name, shop_id=shop.id)
+    # Create a new dish with the current user's shop_id
+    dish = Dish(name=dish_create.name, shop_id=current_user.shop_id)
     session.add(dish)
     session.commit()
     return {"dish_id": dish.id, "name": dish.name, "shop_id": dish.shop_id}
+
 
 
 @app.post("/shop/menu")

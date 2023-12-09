@@ -1,29 +1,14 @@
-from fastapi import Depends, HTTPException, status, Response, APIRouter
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi import Depends, HTTPException, status, Response
+from src.config.settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, oauth2_scheme, REDIS_HOST, REDIS_PORT, REDIS_DB
 import jwt
 from datetime import datetime, timedelta
 import redis
-from schemas.validators import *
-from database.models import *
+
+from src.database.models import *
+from src.config.settings import SessionLocal
 
 
-# Security and authentication
-SECRET_KEY = "12345"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-
-# Настройки Redis
-REDIS_HOST = 'localhost'
-REDIS_PORT = 6379
-REDIS_DB = 0
-
-# Подключение к Redis
-redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
-
-
-# Helper functions
+# Создание access токена
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
     if expires_delta:
@@ -39,6 +24,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     return encoded_jwt
 
 
+# Получение нужного пользователя
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -54,9 +40,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     return user
 
 
-
-
-# Функция для получения всех пользователей из базы данных
+# Получение всех пользователей из базы данных
 def get_all_users():
     session = SessionLocal()
     users = session.query(User).all()
@@ -64,22 +48,14 @@ def get_all_users():
     return users
 
 
-
-
-import redis
-
-# Настройки Redis
-REDIS_HOST = 'localhost'
-REDIS_PORT = 6379
-REDIS_DB = 0
-
-
+# Открытие Redis
 def init_redis():
     global redis_client
     redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
     print("Redis client has been initialized")
 
 
+# Закрытие Redis
 def close_redis():
     global redis_client
     if redis_client:

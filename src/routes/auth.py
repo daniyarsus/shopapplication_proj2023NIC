@@ -3,9 +3,10 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 from datetime import timedelta
 
-from config.dependencies import get_current_user, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, redis_client
-from schemas.validators import UserIn, Logout, UpdatePassword
-from database.models import *
+from src.config.dependencies import get_current_user, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
+from src.config.settings import SessionLocal, redis_client
+from src.schemas.validators import UserIn, Logout, UpdatePassword
+from src.database.models import *
 
 
 auth_router = APIRouter()

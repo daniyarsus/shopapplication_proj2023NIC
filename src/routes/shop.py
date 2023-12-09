@@ -1,8 +1,9 @@
 from fastapi import Depends, HTTPException, status, Response, APIRouter
 
-from config.dependencies import get_current_user
-from schemas.validators import ShopCreate, ShopMenuRequest
-from database.models import *
+from src.config.dependencies import get_current_user
+from src.config.settings import SessionLocal
+from src.schemas.validators import ShopCreate, ShopMenuRequest
+from src.database.models import *
 
 
 shop_router = APIRouter()
