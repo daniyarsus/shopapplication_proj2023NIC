@@ -1,11 +1,11 @@
 from fastapi import Depends, HTTPException, status, Response
-from src.config.settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, oauth2_scheme, REDIS_HOST, REDIS_PORT, REDIS_DB
+from src.config.settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, oauth2_scheme
 import jwt
 from datetime import datetime, timedelta
 import redis
 
 from src.database.models import *
-from src.config.settings import SessionLocal
+from src.config.settings import SessionLocal, REDIS_URL
 
 
 # Создание access токена
@@ -51,7 +51,7 @@ def get_all_users():
 # Открытие Redis
 def init_redis():
     global redis_client
-    redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
+    redis_client = redis.from_url(REDIS_URL)
     print("Redis client has been initialized")
 
 
