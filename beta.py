@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status, WebSocket
+from fastapi import FastAPI, Depends, HTTPException, status, WebSocket, Response
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, ForeignKey
@@ -6,8 +6,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 import jwt
 from datetime import datetime, timedelta
-import asyncio
 from fastapi.middleware.cors import CORSMiddleware
+
 
 # Database setup
 DATABASE_URL = "sqlite:///./test.db"
@@ -23,7 +23,6 @@ class User(Base):
     username = Column(String, unique=True, index=True)
     password = Column(String)
 
-    # Новый столбец, который будет хранить идентификатор магазина, к которому привязан пользователь
     shop_id = Column(Integer, ForeignKey('shops.id'))
     shop = relationship("Shop")
 
@@ -64,6 +63,10 @@ class UserIn(BaseModel):
     password: str
 
 
+class Logout(BaseModel):
+    access_token: str
+
+
 class ShopCreate(BaseModel):
     name: str
 
@@ -78,7 +81,6 @@ class QueueAdd(BaseModel):
     shop_id: int
 
 
-# Pydantic модель для запроса в эндпоинт ready
 class QueueReady(BaseModel):
     shop_id: int
     queue_id: int
@@ -100,6 +102,16 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+import redis
+
+# Настройки Redis
+REDIS_HOST = 'localhost'
+REDIS_PORT = 6379
+REDIS_DB = 0
+
+# Подключение к Redis
+redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
+
 
 # Helper functions
 def create_access_token(data: dict, expires_delta: timedelta = None):
@@ -110,6 +122,10 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
         expire = datetime.utcnow() + timedelta(minutes=15)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+    # Сохранение сессии в Redis
+#    redis_client.setex(encoded_jwt, int(expires_delta.total_seconds() if expires_delta else 900), str(data['sub']))
+
     return encoded_jwt
 
 
@@ -180,6 +196,15 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@app.post("/logout")
+async def logout(logout: Logout, current_user: User = Depends(get_current_user)):
+    access_token = logout.access_token
+    redis_client.delete(access_token)  # Удаление сессии из Redis
+    response = Response()
+    response.delete_cookie("access_token")
+    return {"message": "Logged out successfully"}
 
 
 @app.get("/user/me")
@@ -364,27 +389,10 @@ async def my_queue_status(current_user: User = Depends(get_current_user)):
 
     return user_queue_status
 
-# WebSocket endpoint for real-time notifications
-@app.websocket("/ws/shop/{shop_name}/queue/{queue_id}")
-async def websocket_endpoint(websocket: WebSocket, shop_name: str, queue_id: int):
-    await websocket.accept()
-    session = SessionLocal()
-    try:
-        while True:
-            shop = session.query(Shop).filter(Shop.name == shop_name).first()
-            if not shop:
-                raise HTTPException(status_code=404, detail="Shop not found")
-            queue_item = session.query(QueueItem).filter(QueueItem.id == queue_id, QueueItem.shop_id == shop.id).first()
-            if queue_item and queue_item.is_order_ready:
-                await websocket.send_json({"queue_id": queue_id, "message": "Your order is ready"})
-            break
-        await asyncio.sleep(1)  # Check every second
-    finally:
-        await websocket.close()
-        session.close()
 
 # Эндпоинт для вывода всех данных из таблицы Users
 @app.get("/users_all")
 async def read_all_users():
     users = get_all_users()
     return users
+

@@ -102,15 +102,15 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-import redis
-
-# Настройки Redis
-REDIS_HOST = 'localhost'
-REDIS_PORT = 6379
-REDIS_DB = 0
-
-# Подключение к Redis
-redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
+#import redis
+#
+## Настройки Redis
+#REDIS_HOST = 'localhost'
+#REDIS_PORT = 6379
+#REDIS_DB = 0
+#
+## Подключение к Redis
+#redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
 
 
 # Helper functions
@@ -124,7 +124,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
     # Сохранение сессии в Redis
-    redis_client.setex(encoded_jwt, int(expires_delta.total_seconds() if expires_delta else 900), str(data['sub']))
+#    redis_client.setex(encoded_jwt, int(expires_delta.total_seconds() if expires_delta else 900), str(data['sub']))
 
     return encoded_jwt
 
@@ -198,13 +198,13 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@app.post("/logout")
-async def logout(logout: Logout, current_user: User = Depends(get_current_user)):
-    access_token = logout.access_token
-    redis_client.delete(access_token)  # Удаление сессии из Redis
-    response = Response()
-    response.delete_cookie("access_token")
-    return {"message": "Logged out successfully"}
+#@app.post("/logout")
+#async def logout(logout: Logout, current_user: User = Depends(get_current_user)):
+#    access_token = logout.access_token
+#    redis_client.delete(access_token)  # Удаление сессии из Redis
+#    response = Response()
+#    response.delete_cookie("access_token")
+#    return {"message": "Logged out successfully"}
 
 
 @app.get("/user/me")
