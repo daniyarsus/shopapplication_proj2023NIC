@@ -5,6 +5,8 @@ admin_panel = APIRouter()
 import redis
 
 from src.config.settings import REDIS_URL
+
+
 @admin_panel.get("/redis/all")
 async def read_all_redis_data():
     try:
@@ -18,3 +20,5 @@ async def read_all_redis_data():
         return data
     except Exception as e:
         return {"error": f"Failed to connect to Redis: {e}"}
+
+    

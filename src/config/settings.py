@@ -4,10 +4,12 @@ from sqlalchemy import create_engine, Column, Integer, String, Boolean, ForeignK
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
+
 # Настройки Redis
 #REDIS_PASSWORD = ""
 REDIS_URL = f"redis://default:eb3ALfHIf6IGn5HmFBpB33aoPNbAfhlm@roundhouse.proxy.rlwy.net:21053"
 redis_client = redis.from_url(REDIS_URL)
+
 
 # Настройка JWT
 SECRET_KEY = "Iloveuourmom"
@@ -17,7 +19,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 # Настройка SQLAlchemy DB
-DATABASE_URL = "sqlite:///./test.db"
+DATABASE_URL = "postgresql://postgres:B*61aebC6b3fDd44gdEgDB*f5GCd6d6b@viaduct.proxy.rlwy.net:13322/railway"
 Base = declarative_base()
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
