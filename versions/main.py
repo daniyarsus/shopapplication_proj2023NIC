@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 # Database setup
-DATABASE_URL = "sqlite:///./test.db"
+DATABASE_URL = "sqlite:///home/king/PycharmProjects/ShopApp_v3/versions/test.db"
 Base = declarative_base()
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

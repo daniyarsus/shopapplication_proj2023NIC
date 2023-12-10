@@ -1,10 +1,10 @@
 from fastapi import APIRouter
-
-admin_panel = APIRouter()
-
 import redis
 
 from src.config.settings import REDIS_URL
+from src.config.dependencies import get_all_users
+
+admin_panel = APIRouter()
 
 
 @admin_panel.get("/redis/all")
@@ -21,4 +21,9 @@ async def read_all_redis_data():
     except Exception as e:
         return {"error": f"Failed to connect to Redis: {e}"}
 
-    
+
+# Эндпоинт для вывода всех данных из таблицы Users
+@admin_panel.get("/users_all")
+async def read_all_users():
+    users = get_all_users()
+    return users
