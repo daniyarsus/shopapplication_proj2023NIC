@@ -20,10 +20,10 @@ class Shop(Base):
     __tablename__ = "shops"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True)
-    owner_id = Column(Integer, ForeignKey('users.id'))
 
     # Связь с владельцем магазина
-    owner = relationship("User", backref="owned_shops", foreign_keys=[owner_id])
+    owner_id = Column(Integer, ForeignKey('users.id'))
+    owner = relationship("User", backref="owner_shops", foreign_keys=[owner_id])
 
 class User(Base):
     __tablename__ = "users"
