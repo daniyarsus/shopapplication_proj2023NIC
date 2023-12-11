@@ -2,7 +2,7 @@ from fastapi import APIRouter
 import redis
 
 from src.config.settings import REDIS_URL
-from src.config.dependencies import get_all_users
+from src.config.dependencies import get_all_users, get_all_shops
 
 admin_panel = APIRouter()
 
@@ -27,3 +27,9 @@ async def read_all_redis_data():
 async def read_all_users():
     users = get_all_users()
     return users
+
+
+@admin_panel.get("/shops_all")
+async def read_all_shops():
+    shops = get_all_shops()
+    return shops

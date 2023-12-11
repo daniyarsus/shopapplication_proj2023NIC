@@ -3,6 +3,7 @@ from src.config.settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUT
 import jwt
 from datetime import datetime, timedelta
 import redis
+from contextlib import contextmanager
 
 from src.database.models import *
 from src.config.settings import SessionLocal, REDIS_URL
@@ -48,6 +49,13 @@ def get_all_users():
     return users
 
 
+def get_all_shops():
+    session = SessionLocal()
+    shops = session.query(Shop).all()
+    session.close()
+    return shops
+
+
 # Открытие Redis
 def init_redis():
     global redis_client
@@ -61,3 +69,5 @@ def close_redis():
     if redis_client:
         redis_client.close()
         print("Redis client has been closed")
+
+

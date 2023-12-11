@@ -26,7 +26,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
 # Настройка SQLAlchemy DB
-DATABASE_URL = "postgresql://postgres:B*61aebC6b3fDd44gdEgDB*f5GCd6d6b@viaduct.proxy.rlwy.net:13322/railway"
+DATABASE_URL = "postgresql://postgres:4ddE6a*d**CcDB6aebd-42FeCb1EdFCb@monorail.proxy.rlwy.net:22344/railway"
 Base = declarative_base()
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

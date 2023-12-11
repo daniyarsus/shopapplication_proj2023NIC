@@ -12,13 +12,16 @@ class User(Base):
     password = Column(String)
 
     shop_id = Column(Integer, ForeignKey('shops.id'))
-    shop = relationship("Shop")
+    shop = relationship("Shop", backref="shop_user", foreign_keys=[shop_id], uselist=False)
 
 
 class Shop(Base):
     __tablename__ = "shops"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True)
+    owner_id = Column(Integer, ForeignKey('users.id'))
+
+    owner = relationship("User", backref="owned_shops", foreign_keys=[owner_id])
 
 
 # Dish model
