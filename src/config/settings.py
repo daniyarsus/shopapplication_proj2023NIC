@@ -1,8 +1,15 @@
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+
 import redis
+
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
+
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 
 # Настройки Redis
@@ -15,7 +22,7 @@ redis_client = redis.from_url(REDIS_URL)
 SECRET_KEY = "Iloveuourmom"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
 # Настройка SQLAlchemy DB

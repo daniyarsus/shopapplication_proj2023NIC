@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 # Database setup
-DATABASE_URL = "sqlite:///./test.db"
+DATABASE_URL = "sqlite:///home/king/PycharmProjects/ShopApp_v3/vrs/test.db"
 Base = declarative_base()
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -40,6 +40,7 @@ class Dish(Base):
     name = Column(String)
     shop_id = Column(Integer, ForeignKey('shops.id'))
     shop = relationship("Shop")
+
 
 
 # Queue model
@@ -73,7 +74,6 @@ class ShopCreate(BaseModel):
 
 class DishCreate(BaseModel):
     name: str
-    shop_id: int
 
 
 class QueueAdd(BaseModel):
@@ -102,15 +102,15 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-import redis
-
-# Настройки Redis
-REDIS_HOST = 'localhost'
-REDIS_PORT = 6379
-REDIS_DB = 0
-
-# Подключение к Redis
-redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
+#import redis
+#
+## Настройки Redis
+#REDIS_HOST = 'localhost'
+#REDIS_PORT = 6379
+#REDIS_DB = 0
+#
+## Подключение к Redis
+#redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
 
 
 # Helper functions
@@ -198,13 +198,13 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@app.post("/logout")
-async def logout(logout: Logout, current_user: User = Depends(get_current_user)):
-    access_token = logout.access_token
-    redis_client.delete(access_token)  # Удаление сессии из Redis
-    response = Response()
-    response.delete_cookie("access_token")
-    return {"message": "Logged out successfully"}
+#@app.post("/logout")
+#async def logout(logout: Logout, current_user: User = Depends(get_current_user)):
+#    access_token = logout.access_token
+#    redis_client.delete(access_token)  # Удаление сессии из Redis
+#    response = Response()
+#    response.delete_cookie("access_token")
+#    return {"message": "Logged out successfully"}
 
 
 @app.get("/user/me")
@@ -254,20 +254,16 @@ async def create_shop(shop_create: ShopCreate, current_user: User = Depends(get_
     return {"shop_id": shop.id, "name": shop.name}
 
 
-# Dish endpoints
 @app.post("/shop/dish/create")
 async def create_dish(dish_create: DishCreate, current_user: User = Depends(get_current_user)):
     session = SessionLocal()
-    shop = session.query(Shop).filter(Shop.id == current_user.shop_id).first()
 
-    if not shop:
-        raise HTTPException(status_code=404, detail="Shop not found")
+    # Ensure the current user has a shop associated
+    if not current_user.shop_id:
+        raise HTTPException(status_code=403, detail="No shop associated with the current user")
 
-    # Проверяем, привязан ли текущий пользователь к выбранному магазину
-    if current_user.shop_id != shop.id:
-        raise HTTPException(status_code=403, detail="You are not allowed to create dishes for this shop")
-
-    dish = Dish(name=dish_create.name, shop_id=shop.id)
+    # Create a new dish with the current user's shop_id
+    dish = Dish(name=dish_create.name, shop_id=current_user.shop_id)
     session.add(dish)
     session.commit()
     return {"dish_id": dish.id, "name": dish.name, "shop_id": dish.shop_id}

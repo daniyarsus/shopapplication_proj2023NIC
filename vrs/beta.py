@@ -10,27 +10,30 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 # Database setup
-DATABASE_URL = "sqlite:///home/king/PycharmProjects/ShopApp_v3/versions/test.db"
+DATABASE_URL = "sqlite:///./test.db"
 Base = declarative_base()
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-# User model
-class User(Base):
-    __tablename__ = "users"
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True)
-    password = Column(String)
-
-    shop_id = Column(Integer, ForeignKey('shops.id'))
-    shop = relationship("Shop")
 
 
 class Shop(Base):
     __tablename__ = "shops"
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True)
+    owner_id = Column(Integer, ForeignKey('users.id'))
+
+    # Связь с владельцем магазина
+    owner = relationship("User", backref="owned_shops", foreign_keys=[owner_id])
+
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    password = Column(String)
+
+    # Связь с магазином, к которому привязан пользователь
+    shop_id = Column(Integer, ForeignKey('shops.id'), nullable=True)
+    shop = relationship("Shop", backref="shop_user", foreign_keys=[shop_id], uselist=False)
 
 
 # Dish model
@@ -40,7 +43,6 @@ class Dish(Base):
     name = Column(String)
     shop_id = Column(Integer, ForeignKey('shops.id'))
     shop = relationship("Shop")
-
 
 
 # Queue model
@@ -102,15 +104,15 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-#import redis
-#
-## Настройки Redis
-#REDIS_HOST = 'localhost'
-#REDIS_PORT = 6379
-#REDIS_DB = 0
-#
-## Подключение к Redis
-#redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
+import redis
+
+# Настройки Redis
+REDIS_HOST = 'localhost'
+REDIS_PORT = 6379
+REDIS_DB = 0
+
+# Подключение к Redis
+redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
 
 
 # Helper functions
@@ -198,13 +200,13 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-#@app.post("/logout")
-#async def logout(logout: Logout, current_user: User = Depends(get_current_user)):
-#    access_token = logout.access_token
-#    redis_client.delete(access_token)  # Удаление сессии из Redis
-#    response = Response()
-#    response.delete_cookie("access_token")
-#    return {"message": "Logged out successfully"}
+@app.post("/logout")
+async def logout(logout: Logout, current_user: User = Depends(get_current_user)):
+    access_token = logout.access_token
+    redis_client.delete(access_token)  # Удаление сессии из Redis
+    response = Response()
+    response.delete_cookie("access_token")
+    return {"message": "Logged out successfully"}
 
 
 @app.get("/user/me")
@@ -235,39 +237,46 @@ async def change_password(new_password: UpdatePassword, current_user: User = Dep
     return {"message": "Password updated successfully"}
 
 
-# Shop endpoints
 @app.post("/shop/create")
 async def create_shop(shop_create: ShopCreate, current_user: User = Depends(get_current_user)):
     session = SessionLocal()
-
-    # Проверка, является ли текущий пользователь авторизованным
-    if not current_user:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-
-    existing_shop = session.query(Shop).filter(Shop.name == shop_create.name).first()
-    if existing_shop:
-        raise HTTPException(status_code=400, detail="Shop already exists")
-
-    shop = Shop(name=shop_create.name)
+    # Создаем новый магазин
+    shop = Shop(name=shop_create.name, owner_id=current_user.id)
     session.add(shop)
     session.commit()
-    return {"shop_id": shop.id, "name": shop.name}
+    session.refresh(shop)  # Обновляем объект shop, чтобы получить его ID
+
+    # Обновляем shop_id у текущего пользователя
+    current_user.shop_id = shop.id
+
+    # Подготавливаем данные для ответа
+    shop_id = shop.id
+    shop_name = shop.name
+    owner_id = current_user.id
+
+    session.commit()
+    session.close()
+
+    return {"shop_id": shop_id, "name": shop_name, "owner_id": owner_id}
 
 
-@app.post("/shop/dish/create")
+# Dish endpoints
+@app.post("/dish/create")
 async def create_dish(dish_create: DishCreate, current_user: User = Depends(get_current_user)):
     session = SessionLocal()
+    shop = session.query(Shop).filter(Shop.id == current_user.shop_id).first()
 
-    # Ensure the current user has a shop associated
-    if not current_user.shop_id:
-        raise HTTPException(status_code=403, detail="No shop associated with the current user")
+    if not shop:
+        raise HTTPException(status_code=404, detail="Shop not found")
 
-    # Create a new dish with the current user's shop_id
-    dish = Dish(name=dish_create.name, shop_id=current_user.shop_id)
+    # Проверяем, привязан ли текущий пользователь к выбранному магазину
+    if current_user.shop_id != shop.id:
+        raise HTTPException(status_code=403, detail="You are not allowed to create dishes for this shop")
+
+    dish = Dish(name=dish_create.name, shop_id=shop.id)
     session.add(dish)
     session.commit()
     return {"dish_id": dish.id, "name": dish.name, "shop_id": dish.shop_id}
-
 
 
 @app.post("/shop/menu")
