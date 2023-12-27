@@ -14,6 +14,7 @@ from src.database.models import User
 from src.auth.current_user import get_current_user
 from src.auth.register_user import register_user
 from src.auth.token import create_access_token
+#from src.services.active_status import activate_user, deactivate_user
 
 
 app = FastAPI()
@@ -68,18 +69,6 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-#@app.put("/activate")
-#async def activate_user_endpoint(current_user: User = Depends(get_current_user)):
-#    result = await activate_user(current_user)
-#    return result
-#
-#
-#@app.put("/deactivate")
-#async def deactivate_user_endpoint(current_user: User = Depends(get_current_user)):
-#    result = await deactivate_user(current_user)
-#    return result
-
-
 @app.put("/user/activate")
 async def activate_user(current_user: User = Depends(get_current_user)):
     db: Session = SessionLocal()
@@ -90,8 +79,8 @@ async def activate_user(current_user: User = Depends(get_current_user)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
     user.is_active = True
-    db.add(user)  # Добавляем объект пользователя обратно в сессию для обновления
-    db.commit()  # Фиксируем изменения в базе данных
+    db.add(user)
+    db.commit()
     db.close()
 
     return {"message": "User activated successfully"}
@@ -107,8 +96,8 @@ async def activate_user(current_user: User = Depends(get_current_user)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
     user.is_active = False
-    db.add(user)  # Добавляем объект пользователя обратно в сессию для обновления
-    db.commit()  # Фиксируем изменения в базе данных
+    db.add(user)
+    db.commit()
     db.close()
 
     return {"message": "User deactivated successfully"}
