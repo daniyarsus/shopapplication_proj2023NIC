@@ -1,4 +1,4 @@
-fastapi==0.80.0
+fastapi~=0.104.1
 uvicorn==0.15.0
 python-jose==3.3.0
 sqlalchemy==1.4.42
@@ -11,3 +11,7 @@ databases==0.8.0
 redis==5.0.1
 psycopg2-binary==2.9.9
 python-dotenv==1.0.0
+pydantic~=2.5.2
+alembic~=1.13.0
+requests~=2.31.0
+asyncpg~=0.29.0
