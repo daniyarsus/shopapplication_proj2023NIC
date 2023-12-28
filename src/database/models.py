@@ -16,7 +16,6 @@ class User(Base):
     image_url = Column(String, default=None)
     is_verified = Column(Boolean, default=False)
     is_active = Column(Boolean, default=None)
-    verification_code = Column(String, default=None)
 
 
 class VerificationCode(Base):
@@ -24,10 +23,10 @@ class VerificationCode(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    email_code = Column(String)
-    email_verified_at = Column(DateTime)
-    password_code = Column(String)
-    password_verified_at = Column(DateTime)
+    email_code = Column(String, default=None)
+    email_verified_at = Column(DateTime, default=None)
+    password_code = Column(String, default=None)
+    password_verified_at = Column(DateTime, default=None)
 
 
 Base.metadata.create_all(engine)
