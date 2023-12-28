@@ -2,6 +2,7 @@ from datetime import datetime
 import requests
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
+from datetime import timedelta
 
 from src.settings.config import DOMAIN_NAME, API_KEY, SessionLocal
 from src.database.models import User, VerificationCode
