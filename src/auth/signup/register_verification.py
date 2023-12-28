@@ -57,6 +57,12 @@ async def verification_code(check):
         .filter(VerificationCode.user_id == existing_user.id)\
         .order_by(VerificationCode.email_verified_at.desc()).first()
 
+    if not verification_record:
+        raise HTTPException(status_code=404, detail="Verification code not found")
+
+    if datetime.utcnow() - verification_record.email_verified_at > timedelta(minutes=1):
+        raise HTTPException(status_code=400, detail="Verification code has expired")
+
     if check.code is None or not verification_record:
         raise HTTPException(status_code=400, detail="Code must be provided")
     if check.code != verification_record.email_code:
