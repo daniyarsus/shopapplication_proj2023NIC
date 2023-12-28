@@ -2,7 +2,6 @@ from fastapi import HTTPException
 
 from src.database.models import User
 from src.settings.config import SessionLocal
-from src.auth.current_user import get_current_user
 
 
 async def activate_user():

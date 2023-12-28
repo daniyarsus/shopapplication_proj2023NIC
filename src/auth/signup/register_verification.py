@@ -8,7 +8,7 @@ from src.validators.schemas import CheckCode, SendEmail
 
 
 # Функция для отправки кода подтверждения
-async def send_email(post_email: SendEmail):
+async def send_email(post_email):
     db = SessionLocal()
     code = generate_verification_code()
     existing_user = db.query(User).filter(User.email == post_email.email).first()
@@ -42,7 +42,7 @@ async def send_email(post_email: SendEmail):
 
 
 # Функция для проверки введенного кода
-async def verification_code(check: CheckCode):
+async def verification_code(check):
     db = SessionLocal()
     existing_user = db.query(User).filter(User.email == check.email).first()
 

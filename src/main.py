@@ -1,19 +1,20 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 import redis
-from datetime import datetime, timedelta
+from datetime import timedelta
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from src.services.email_verification import send_email, verification_code
+from src.auth.signup.register_verification import send_email, verification_code
+from src.auth.signup.registration_user import register_user
 from src.services.redis_utils import init_redis, close_redis
 from src.services.postgres_utils import init_postgres, close_postgres
 from src.validators.schemas import *
 from src.settings.config import SessionLocal, ACCESS_TOKEN_EXPIRE_MINUTES, REDIS_URL
 from src.database.models import User
-from src.auth.current_user import get_current_user
-from src.auth.register_user import register_user
-from src.auth.token import create_access_token
+from src.auth.user.current_user import get_current_user
+from src.auth.signin.token import create_access_token
+from src.auth.signin.login_user import authenticate_user
 #from src.services.active_status import activate_user, deactivate_user
 
 
@@ -48,25 +49,8 @@ async def verify_code_endpoint(check: CheckCode):
 
 @app.post("/token")
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    session = SessionLocal()
-    user = session.query(User).filter(User.username == form_data.username).first()
-    if not user.is_verified:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Verify code"
-        )
-
-    if not user or user.password != form_data.password:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    access_token_expires = timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
-    access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
-    )
-    return {"access_token": access_token, "token_type": "bearer"}
+    result = await authenticate_user(form_data)
+    return result
 
 
 @app.put("/user/activate")
