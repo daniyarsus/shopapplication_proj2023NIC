@@ -20,13 +20,21 @@ async def send_email(post_email):
     if existing_user.is_verified:
         raise HTTPException(status_code=400, detail="Email already verified")
 
-    new_verification_code = VerificationCode(
-        user_id=existing_user.id,
-        email_code=code,
-        email_verified_at=datetime.utcnow()
-    )
+    # Ищем существующий объект VerificationCode для пользователя или создаем новый
+    verification_code = db.query(VerificationCode).filter(VerificationCode.user_id == existing_user.id).first()
+    if verification_code:
+        # Обновляем код и время, если запись найдена
+        verification_code.email_code = code
+        verification_code.email_verified_at = datetime.utcnow()
+    else:
+        # Создаем новую запись, если пользователь не найден
+        verification_code = VerificationCode(
+            user_id=existing_user.id,
+            email_code=code,
+            email_verified_at=datetime.utcnow()
+        )
+        db.add(verification_code)
 
-    db.add(new_verification_code)
     db.commit()
 
     try:
