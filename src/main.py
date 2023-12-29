@@ -93,7 +93,7 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
 
 @app.get("/redis/all")
 async def read_all_redis_data_endpoint():
-    result = await read_all_redis_data
+    result = await read_all_redis_data()
     return result
 
 
