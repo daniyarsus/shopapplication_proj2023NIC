@@ -32,18 +32,18 @@ app.add_middleware(
 
 
 @app.post("/register")
-async def register(user_in: UserRegister):
+async def register_endpoint(user_in: UserRegister):
     result = await register_user(user_in)
     return result
 
 
-@app.post("/send-email")
+@app.post("/send-email-for-registration")
 async def send_email_endpoint(post_email: SendEmail):
     result = await send_email(post_email)
     return result
 
 
-@app.post("/verify")
+@app.post("/verify-email-for-registration")
 async def verify_code_endpoint(check: CheckCode):
     result = await verification_code(check)
     return result
@@ -56,7 +56,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
 
 
 @app.put("/change-password")
-async def change_password(new_password: ChangePassword, current_user: User = Depends(get_current_user)):
+async def change_password_endpoint(new_password: ChangePassword, current_user: User = Depends(get_current_user)):
     result = await change_user_password(current_user.id, new_password.old_password, new_password.new_password)
     return result
 
@@ -74,7 +74,7 @@ async def reset_password_endpoint(verify_new_password: VerifyAndNewPassword):
 
 
 @app.put("/user/activate")
-async def activate_user(current_user: User = Depends(get_current_user)):
+async def activate_user_endpoint(current_user: User = Depends(get_current_user)):
     db: Session = SessionLocal()
 
     user = db.query(User).filter(User.username == current_user.username).first()
@@ -91,7 +91,7 @@ async def activate_user(current_user: User = Depends(get_current_user)):
 
 
 @app.put("/user/deactivate")
-async def activate_user(current_user: User = Depends(get_current_user)):
+async def activate_user_endpoint(current_user: User = Depends(get_current_user)):
     db: Session = SessionLocal()
 
     user = db.query(User).filter(User.username == current_user.username).first()
