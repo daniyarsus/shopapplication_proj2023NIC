@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from src.auth.signup.register_verification import send_email, verification_code
 from src.auth.signup.registration_user import register_user
-from src.services.redis_utils import init_redis, close_redis
+from src.services.redis_utils.redis_status import init_redis, close_redis
 from src.services.postgres_utils import init_postgres, close_postgres
 from src.validators.schemas import *
 from src.settings.config import SessionLocal, ACCESS_TOKEN_EXPIRE_MINUTES, REDIS_URL
@@ -18,6 +18,7 @@ from src.auth.signin.login_user import authenticate_user
 from src.auth.password.changing_password import change_user_password
 from src.auth.password.password_verification import send_email_forgotten_password, reset_password
 from src.auth.user.active_status import activate_user_status, deactivate_user_status
+from src.services.redis_utils.redis_users import read_all_redis_data
 
 
 app = FastAPI()
@@ -91,18 +92,9 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
 
 
 @app.get("/redis/all")
-async def read_all_redis_data():
-    try:
-        client = redis.from_url(REDIS_URL)
-        keys = client.keys('*')
-        data = {}
-        for key in keys:
-            value = client.get(key)
-            if value is not None:
-                data[key.decode('utf-8')] = value.decode('utf-8')
-        return data
-    except Exception as e:
-        return {"error": f"Failed to connect to Redis: {e}"}
+async def read_all_redis_data_endpoint():
+    result = await read_all_redis_data
+    return result
 
 
 @app.on_event("startup")
