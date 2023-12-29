@@ -17,7 +17,7 @@ from src.auth.signin.token import create_access_token
 from src.auth.signin.login_user import authenticate_user
 from src.auth.password.changing_password import change_user_password
 from src.auth.password.password_verification import send_email_forgotten_password, reset_password
-#from src.auth.active_status import activate_user, deactivate_user
+from src.auth.active_status import activate_user_status, deactivate_user_status
 
 
 app = FastAPI()
@@ -75,36 +75,14 @@ async def reset_password_endpoint(verify_new_password: VerifyAndNewPassword):
 
 @app.put("/user/activate")
 async def activate_user_endpoint(current_user: User = Depends(get_current_user)):
-    db: Session = SessionLocal()
-
-    user = db.query(User).filter(User.username == current_user.username).first()
-    if not user:
-        db.close()
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-
-    user.is_active = True
-    db.add(user)
-    db.commit()
-    db.close()
-
-    return {"message": "User activated successfully"}
+    result = await activate_user_status(current_user)
+    return result
 
 
-@app.put("/user/deactivate")
-async def activate_user_endpoint(current_user: User = Depends(get_current_user)):
-    db: Session = SessionLocal()
-
-    user = db.query(User).filter(User.username == current_user.username).first()
-    if not user:
-        db.close()
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-
-    user.is_active = False
-    db.add(user)
-    db.commit()
-    db.close()
-
-    return {"message": "User deactivated successfully"}
+@app.post("/user/deactivate")
+async def deactivate_user_endpoint(current_user: User = Depends(get_current_user)):
+    result = await deactivate_user_status(current_user)
+    return result
 
 
 @app.get("/user/me")
