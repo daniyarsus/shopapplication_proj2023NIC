@@ -74,24 +74,24 @@ async def reset_password_endpoint(verify_new_password: VerifyAndNewPassword):
     return result
 
 
-@app.put("/user/activate")
+@app.put("/activate-status")
 async def activate_user_endpoint(current_user: User = Depends(get_current_user)):
     result = await activate_user_status(current_user)
     return result
 
 
-@app.post("/user/deactivate")
+@app.post("/deactivate-status")
 async def deactivate_user_endpoint(current_user: User = Depends(get_current_user)):
     result = await deactivate_user_status(current_user)
     return result
 
 
-@app.get("/user/me")
+@app.get("/me")
 async def read_users_me(current_user: User = Depends(get_current_user)):
     return current_user
 
 
-@app.get("/redis/all")
+@app.get("/redis-all-information")
 async def read_all_redis_data_endpoint():
     result = await read_all_redis_data()
     return result
