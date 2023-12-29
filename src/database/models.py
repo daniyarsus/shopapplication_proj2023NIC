@@ -29,5 +29,14 @@ class VerificationCode(Base):
     password_verified_at = Column(DateTime, default=None)
 
 
+class Assortment(Base):
+    __tablename__ = "assortments"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+    description = Column(String)
+    price = Column(Integer, index=True)
+
+
+
 Base.metadata.create_all(engine)
 

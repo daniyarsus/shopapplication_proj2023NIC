@@ -17,7 +17,7 @@ from src.auth.signin.token import create_access_token
 from src.auth.signin.login_user import authenticate_user
 from src.auth.password.changing_password import change_user_password
 from src.auth.password.password_verification import send_email_forgotten_password, reset_password
-from src.auth.active_status import activate_user_status, deactivate_user_status
+from src.auth.user.active_status import activate_user_status, deactivate_user_status
 
 
 app = FastAPI()
