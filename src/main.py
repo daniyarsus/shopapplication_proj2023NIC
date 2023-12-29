@@ -15,7 +15,9 @@ from src.database.models import User
 from src.auth.user.current_user import get_current_user
 from src.auth.signin.token import create_access_token
 from src.auth.signin.login_user import authenticate_user
-#from src.services.active_status import activate_user, deactivate_user
+from src.auth.password.changing_password import change_user_password
+from src.auth.password.password_verification import send_email_forgotten_password, reset_password
+#from src.auth.active_status import activate_user, deactivate_user
 
 
 app = FastAPI()
@@ -50,6 +52,24 @@ async def verify_code_endpoint(check: CheckCode):
 @app.post("/token")
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     result = await authenticate_user(form_data)
+    return result
+
+
+@app.put("/change-password")
+async def change_password(new_password: ChangePassword, current_user: User = Depends(get_current_user)):
+    result = await change_user_password(current_user.id, new_password.old_password, new_password.new_password)
+    return result
+
+
+@app.post("/send-email-for-forgotten-password")
+async def send_email_forgotten_password_endpoint(email_send: SendEmail):
+    result = await send_email_forgotten_password(email_send)
+    return result
+
+
+@app.post("/verify-email-for-forgotten-password")
+async def reset_password_endpoint(verify_new_password: VerifyAndNewPassword):
+    result = await reset_password(verify_new_password)
     return result
 
 

@@ -23,3 +23,14 @@ class CheckCode(BaseModel):
     email: EmailStr
     code: str
 
+
+class ChangePassword(BaseModel):
+    old_password: str
+    new_password: str
+
+
+class VerifyAndNewPassword(BaseModel):
+    email: EmailStr
+    code: str
+    new_password: str
+
