@@ -45,8 +45,8 @@ async def send_email(post_email):
             data={
                 "from": f"Excited User <mailgun@{DOMAIN_NAME}>",
                 "to": existing_user.email,
-                "subject": "Код подтверждения для регистрации в приложение ...",
-                "text": f"Ваш код подтверждения: {code}. Никому его не сообщайте!"
+                "subject": "test application",
+                "text": f"for email {code}"
             })
         response.raise_for_status()
         return {"message": "Email sent successfully", "status": response.status_code}
