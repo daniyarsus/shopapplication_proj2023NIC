@@ -1,9 +1,6 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-import redis
-from datetime import timedelta
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
 
 from src.auth.signup.register_verification import send_email, verification_code
 from src.auth.signup.registration_user import register_user
@@ -19,6 +16,7 @@ from src.auth.password.changing_password import change_user_password
 from src.auth.password.password_verification import send_email_forgotten_password, reset_password
 from src.auth.user.active_status import activate_user_status, deactivate_user_status
 from src.services.redis_utils.redis_users import read_all_redis_data
+from src.shop_development.position_settings import add_employee, delete_employee
 
 
 app = FastAPI()
@@ -80,9 +78,26 @@ async def activate_user_endpoint(current_user: User = Depends(get_current_user))
     return result
 
 
-@app.post("/deactivate-status")
+@app.put("/deactivate-status")
 async def deactivate_user_endpoint(current_user: User = Depends(get_current_user)):
     result = await deactivate_user_status(current_user)
+    return result
+
+
+@app.post("/new-employee")
+async def new_employee_endpoint(new_employee: NewEmployee):
+    result = await add_employee(new_employee)
+    return result
+
+
+@app.put("/update-position-employee")
+async def update_position_employee_endpoint():
+    pass
+
+
+@app.put("/delete-employee")
+async def delete_employee_endpoint(employee_data: DeleteEmployee):
+    result = await delete_employee(employee_data)
     return result
 
 

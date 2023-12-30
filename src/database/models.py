@@ -29,13 +29,21 @@ class VerificationCode(Base):
     password_verified_at = Column(DateTime, default=None)
 
 
+class Employee(Base):
+    __tablename__ = "employees"
+    id = Column(Integer, primary_key=True, index=True)
+    employee_id = Column(Integer, ForeignKey("users.id"))
+    position = Column(String, default=None, index=True)
+
+
 class Assortment(Base):
     __tablename__ = "assortments"
     id = Column(Integer, primary_key=True, index=True)
+    type = Column(String, index=True)
     name = Column(String)
     description = Column(String)
     price = Column(Integer, index=True)
-
+    image_url = Column(String, default=None)
 
 
 Base.metadata.create_all(engine)

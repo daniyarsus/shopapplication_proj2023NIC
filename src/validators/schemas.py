@@ -34,3 +34,16 @@ class VerifyAndNewPassword(BaseModel):
     code: str
     new_password: str
 
+
+class NewEmployee(BaseModel):
+    user_id: int
+
+
+class UpdatePosition(BaseModel):
+    employee_id: int
+    position: str
+
+
+class DeleteEmployee(BaseModel):
+    employee_id: int
+
