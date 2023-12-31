@@ -31,8 +31,8 @@ class VerificationCode(Base):
 
 class Employee(Base):
     __tablename__ = "employees"
-    id = Column(Integer, primary_key=True, index=True)
-    employee_id = Column(Integer, ForeignKey("users.id"))
+    employee_id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
     position = Column(String, default=None, index=True)
 
 

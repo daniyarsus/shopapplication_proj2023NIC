@@ -16,7 +16,7 @@ from src.auth.password.changing_password import change_user_password
 from src.auth.password.password_verification import send_email_forgotten_password, reset_password
 from src.auth.user.active_status import activate_user_status, deactivate_user_status
 from src.services.redis_utils.redis_users import read_all_redis_data
-from src.shop_development.position_settings import add_employee, delete_employee
+from src.shop_development.position_settings import add_employee, delete_employee, update_position_employee
 
 
 app = FastAPI()
@@ -85,19 +85,20 @@ async def deactivate_user_endpoint(current_user: User = Depends(get_current_user
 
 
 @app.post("/new-employee")
-async def new_employee_endpoint(new_employee: NewEmployee):
-    result = await add_employee(new_employee)
+async def new_employee_endpoint(new_employee: NewEmployee, current_user: User = Depends(get_current_user)):
+    result = await add_employee(new_employee, current_user)
     return result
 
 
 @app.put("/update-position-employee")
-async def update_position_employee_endpoint():
-    pass
+async def update_position_employee_endpoint(upd_employee: UpdatePosition, current_user: User = Depends()):
+    result = await update_position_employee(upd_employee, current_user)
+    return result
 
 
 @app.put("/delete-employee")
-async def delete_employee_endpoint(employee_data: DeleteEmployee):
-    result = await delete_employee(employee_data)
+async def delete_employee_endpoint(employee_data: DeleteEmployee, current_user: User = Depends(get_current_user)):
+    result = await delete_employee(employee_data, current_user)
     return result
 
 
