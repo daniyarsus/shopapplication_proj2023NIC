@@ -40,10 +40,10 @@ class NewEmployee(BaseModel):
 
 
 class UpdatePosition(BaseModel):
-    employee_id: int
+    user_id: int
     position: str
 
 
 class DeleteEmployee(BaseModel):
-    employee_id: int
+    user_id: int
 

@@ -41,7 +41,7 @@ async def delete_employee(employee_data, current_user):
             raise HTTPException(status_code=403, detail="You must be an owner to delete employees")
 
         # Находим и удаляем сотрудника
-        employee_to_delete = session.query(Employee).filter(Employee.employee_id == employee_data.employee_id).first()
+        employee_to_delete = session.query(Employee).filter(Employee.user_id == employee_data.user_id).first()
         if not employee_to_delete:
             raise HTTPException(status_code=404, detail="Employee not found")
 
@@ -68,7 +68,7 @@ async def update_position_employee(position_data, current_user):
             raise HTTPException(status_code=403, detail="You must be an owner to update employee positions")
 
         # Находим сотрудника, чью должность нужно обновить
-        employee_to_update = session.query(Employee).filter(Employee.employee_id == position_data.employee_id).first()
+        employee_to_update = session.query(Employee).filter(Employee.user_id == position_data.user_id).first()
         if not employee_to_update:
             raise HTTPException(status_code=404, detail="Employee not found")
 
@@ -76,7 +76,7 @@ async def update_position_employee(position_data, current_user):
         employee_to_update.position = position_data.position
         session.commit()
 
-        return {"message": "Employee's position updated successfully", "employee_id": position_data.employee_id,
+        return {"message": "Employee's position updated successfully", "employee_id": position_data.user_id,
                 "new_position": position_data.position}
 
     except HTTPException as e:

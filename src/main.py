@@ -96,7 +96,7 @@ async def update_position_employee_endpoint(upd_employee: UpdatePosition, curren
     return result
 
 
-@app.put("/delete-employee")
+@app.delete("/delete-employee")
 async def delete_employee_endpoint(employee_data: DeleteEmployee, current_user: User = Depends(get_current_user)):
     result = await delete_employee(employee_data, current_user)
     return result
