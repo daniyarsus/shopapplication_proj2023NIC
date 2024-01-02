@@ -33,7 +33,7 @@ class Employee(Base):
     __tablename__ = "employees"
     employee_id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    position = Column(String, default=None, index=True)
+    position = Column(String, default="employee", index=True)
 
 
 class Assortment(Base):
