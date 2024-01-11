@@ -176,7 +176,8 @@ async def read_all_redis_data_endpoint():
 async def startup_event():
     redis_cache = FastApiRedisCache()
     redis_cache.init(
-        host_url=os.environ.get("redis://default:h2CfIgbLenME656D5F1e2K6Bd2He1B3a@viaduct.proxy.rlwy.net:28951"),
+        host_url=os.environ.get("REDIS_URL",
+                                "redis://default:h2CfIgbLenME656D5F1e2K6Bd2He1B3a@viaduct.proxy.rlwy.net:28951"),
         prefix="myapi-cache",
         response_header="X-MyAPI-Cache",
         ignore_arg_types=[Request, Response, Session]

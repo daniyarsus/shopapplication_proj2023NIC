@@ -62,6 +62,8 @@ class FoodSet(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
     description = Column(String)
+    price = Column(Integer, index=True)
+    image_url = Column(String, default=None)
 
 
 Base.metadata.create_all(engine)

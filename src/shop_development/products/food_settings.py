@@ -71,7 +71,8 @@ async def create_food_set(food_set, current_user):
 
         new_food_set = FoodSet(
             name=food_set.name,
-            description=food_set.description
+            description=food_set.description,
+            price=food_set.price
         )
         db.add(new_food_set)
         db.commit()
@@ -81,7 +82,8 @@ async def create_food_set(food_set, current_user):
             "message": "Food set created successfully",
             "food_set_id": new_food_set.id,
             "name": new_food_set.name,
-            "description": new_food_set.description
+            "description": new_food_set.description,
+            "price": new_food_set.price
         }
     except Exception as e:
         db.rollback()
