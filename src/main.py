@@ -149,6 +149,7 @@ async def get_favorite_food_endpoint(current_user: User = Depends(get_current_us
 
 
 @app.get("/me")
+@cache(expire=30)
 async def read_users_me(current_user: User = Depends(get_current_user)):
     return {
         "id": current_user.id,
@@ -171,6 +172,13 @@ async def read_all_redis_data_endpoint():
 
 @app.on_event("startup")
 async def startup_event():
+    redis_cache = FastApiRedisCache()
+    redis_cache.init(
+        host_url=os.environ.get("redis://default:h2CfIgbLenME656D5F1e2K6Bd2He1B3a@viaduct.proxy.rlwy.net:28951"),
+        prefix="myapi-cache",
+        response_header="X-MyAPI-Cache",
+        ignore_arg_types=[Request, Response, Session]
+    )
     init_redis()
     await init_postgres()
 
