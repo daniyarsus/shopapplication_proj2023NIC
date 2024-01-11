@@ -1,4 +1,5 @@
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel, EmailStr, validator, Field
+from typing import List
 
 
 class UserRegister(BaseModel):
@@ -46,4 +47,36 @@ class UpdatePosition(BaseModel):
 
 class DeleteEmployee(BaseModel):
     user_id: int
+
+
+class CreateFood(BaseModel):
+    name: str
+    description: str
+    price: float
+    type: str
+
+
+class UpdateFood(BaseModel):
+    food_id: int
+    name: str
+    description: str
+    price: float
+    type: str
+
+
+class DeleteFood(BaseModel):
+    food_id: int
+
+
+class AddFavoriteFood(BaseModel):
+    food_id: int
+
+
+class DeleteFavoriteFood(BaseModel):
+    food_id: int
+
+
+class FoodSetCreate(BaseModel):
+    name: str
+    description: str
 

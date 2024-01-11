@@ -1,4 +1,4 @@
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 
 from src.database.models import User, Employee
 from src.settings.config import SessionLocal
@@ -39,7 +39,7 @@ async def delete_employee(employee_data, current_user):
     session.delete(employee_to_delete)
     session.commit()
 
-    return {"message": "Employee deleted successfully", "employee_id": employee_data.employee_id}
+    return {"message": "Employee deleted successfully", "employee_id": employee_data.user_id}
 
 
 async def update_employee_position(update_data, current_user: User):

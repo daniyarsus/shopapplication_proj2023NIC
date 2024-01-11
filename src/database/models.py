@@ -31,6 +31,7 @@ class VerificationCode(Base):
 
 class Employee(Base):
     __tablename__ = "employees"
+
     employee_id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     position = Column(String, default="employee", index=True)
@@ -38,12 +39,29 @@ class Employee(Base):
 
 class Assortment(Base):
     __tablename__ = "assortments"
+
     id = Column(Integer, primary_key=True, index=True)
     type = Column(String, index=True)
     name = Column(String)
     description = Column(String)
     price = Column(Integer, index=True)
     image_url = Column(String, default=None)
+
+
+class FavoriteFood(Base):
+    __tablename__ = "favorite_foods"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    food_id = Column(Integer, ForeignKey("assortments.id"))
+
+
+class FoodSet(Base):
+    __tablename__ = "food_sets"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+    description = Column(String)
 
 
 Base.metadata.create_all(engine)

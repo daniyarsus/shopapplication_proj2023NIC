@@ -1,6 +1,8 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Response, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi_redis_cache import FastApiRedisCache, cache
+from sqlalchemy.orm import Session
 
 from src.auth.signup.register_verification import send_email, verification_code
 from src.auth.signup.registration_user import register_user
@@ -8,7 +10,7 @@ from src.services.redis_utils.redis_status import init_redis, close_redis
 from src.services.postgres_utils import init_postgres, close_postgres
 from src.validators.schemas import *
 from src.settings.config import SessionLocal, ACCESS_TOKEN_EXPIRE_MINUTES, REDIS_URL
-from src.database.models import User
+from src.database.models import User, FavoriteFood, FoodSet
 from src.auth.user.current_user import get_current_user
 from src.auth.signin.token import create_access_token
 from src.auth.signin.login_user import authenticate_user
@@ -17,6 +19,8 @@ from src.auth.password.password_verification import send_email_forgotten_passwor
 from src.auth.user.active_status import activate_user_status, deactivate_user_status
 from src.services.redis_utils.redis_users import read_all_redis_data
 from src.shop_development.position_settings import add_employee, delete_employee, update_employee_position
+from src.shop_development.products.food_settings import create_food, update_food, delete_food, create_food_set
+from src.shop_development.products.favorite_food import add_favorite_food, delete_favorite_food, list_favorite_foods
 
 
 app = FastAPI()
@@ -49,7 +53,7 @@ async def verify_code_endpoint(check: CheckCode):
 
 
 @app.post("/token")
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login_for_access_token_endpoint(form_data: OAuth2PasswordRequestForm = Depends()):
     result = await authenticate_user(form_data)
     return result
 
@@ -92,19 +96,71 @@ async def new_employee_endpoint(new_employee: NewEmployee, current_user: User = 
 
 @app.post("/update-position-employee")
 async def update_position_employee_endpoint(update_data: UpdatePosition, current_user: User = Depends(get_current_user)):
-    result = await update_position_employee(update_data, current_user)
+    result = await update_employee_position(update_data, current_user)
     return result
 
 
 @app.delete("/delete-employee")
 async def delete_employee_endpoint(employee_data: DeleteEmployee, current_user: User = Depends(get_current_user)):
-    result = await delete_employee(employee_data, current_user)
+    result = await delete_employee_position(employee_data, current_user)
+    return result
+
+
+@app.post("/create-food")
+async def create_food_endpoint(new_food: CreateFood, current_user: User = Depends(get_current_user)):
+    result = await create_food(new_food, current_user)
+    return result
+
+
+@app.put("/update-food")
+async def update_food_endpoint(food_data: UpdateFood, current_user: User = Depends(get_current_user)):
+    result = await update_food(food_data, current_user)
+    return result
+
+
+@app.delete("/delete-food")
+async def delete_food_endpoint(del_food: DeleteFood, current_user: User = Depends(get_current_user)):
+    result = await delete_food(del_food, current_user)
+    return result
+
+
+@app.post("/create-set-food")
+async def create_set_food_endpoint(food_set: FoodSetCreate, current_user: User = Depends(get_current_user)):
+    result = await create_food_set(food_set, current_user)
+    return result
+
+
+@app.post("/add-favorite-food")
+async def add_favorite_food_endpoint(food_data: AddFavoriteFood, current_user: User = Depends(get_current_user)):
+    result = await add_favorite_food(food_data, current_user)
+    return result
+
+
+@app.delete("/delete-favorite-food")
+async def delete_favorite_food_endpoint(food_data: DeleteFavoriteFood, current_user: User = Depends(get_current_user)):
+    result = await delete_favorite_food(food_data, current_user)
+    return result
+
+
+@app.get("/get-favorite-food")
+async def get_favorite_food_endpoint(current_user: User = Depends(get_current_user)):
+    result = await list_favorite_foods(current_user)
     return result
 
 
 @app.get("/me")
 async def read_users_me(current_user: User = Depends(get_current_user)):
-    return current_user
+    return {
+        "id": current_user.id,
+        "name": current_user.name,
+        "lastname": current_user.lastname,
+        "email": current_user.email,
+        "username": current_user.username,
+        "phone_number": current_user.phone_number,
+        "image_url": current_user.image_url,
+        "is_active": current_user.is_active,
+        "is_verified": current_user.is_verified
+    }
 
 
 @app.get("/redis-all-information")
