@@ -1,15 +1,20 @@
 import os
 
+import jwt
 from fastapi import FastAPI, Depends, Response, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi_redis_cache import FastApiRedisCache, cache
 from sqlalchemy.orm import Session
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
+from fastapi_cache.decorator import cache
+from redis import asyncio as aioredis
+from datetime import timedelta
 
 from src.auth.signup.register_verification import send_email, verification_code
 from src.auth.signup.registration_user import register_user
-from src.services.redis_utils.redis_status import init_redis, close_redis
-from src.services.postgres_utils import init_postgres, close_postgres
+from src.services.redis_utils.redis_status import init_redis
+from src.services.postgres_utils import init_postgres
 from src.validators.schemas import *
 from src.settings.config import SessionLocal, ACCESS_TOKEN_EXPIRE_MINUTES, REDIS_URL
 from src.database.models import User, FavoriteFood, FoodSet
@@ -23,7 +28,8 @@ from src.services.redis_utils.redis_users import read_all_redis_data
 from src.shop_development.position_settings import add_employee, delete_employee, update_employee_position
 from src.shop_development.products.food_settings import create_food, update_food, delete_food, create_food_set
 from src.shop_development.products.favorite_food import add_favorite_food, delete_favorite_food, list_favorite_foods
-
+from src.settings.config import redis_client
+from src.auth.user.current_user import user_identifier
 
 app = FastAPI()
 
@@ -151,7 +157,7 @@ async def get_favorite_food_endpoint(current_user: User = Depends(get_current_us
 
 
 @app.get("/me")
-@cache(expire=30)
+@cache(expire=300, namespace=f"user_{user_identifier}")
 async def read_users_me(current_user: User = Depends(get_current_user)):
     return {
         "id": current_user.id,
@@ -174,20 +180,8 @@ async def read_all_redis_data_endpoint():
 
 @app.on_event("startup")
 async def startup_event():
-    redis_cache = FastApiRedisCache()
-    redis_cache.init(
-        host_url=os.environ.get("REDIS_URL",
-                                "redis://default:h2CfIgbLenME656D5F1e2K6Bd2He1B3a@viaduct.proxy.rlwy.net:28951"),
-        prefix="myapi-cache",
-        response_header="X-MyAPI-Cache",
-        ignore_arg_types=[Request, Response, Session]
-    )
+    redis = aioredis.from_url("redis://default:h2CfIgbLenME656D5F1e2K6Bd2He1B3a@viaduct.proxy.rlwy.net:28951", encoding="utf8", decode_responses=True)
+    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
     init_redis()
     await init_postgres()
-
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    close_redis()
-    await close_postgres()
 

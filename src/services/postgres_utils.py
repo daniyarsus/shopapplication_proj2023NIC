@@ -11,10 +11,3 @@ async def init_postgres():
     postgres_conn = await asyncpg.connect(DATABASE_URL)
     print("PostgreSQL connection has been initialized")
 
-
-async def close_postgres():
-    global postgres_conn
-    if postgres_conn:
-        await postgres_conn.close()
-        print("PostgreSQL connection has been closed")
-

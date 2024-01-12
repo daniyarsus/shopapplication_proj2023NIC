@@ -9,11 +9,3 @@ def init_redis():
     print("Redis client has been initialized")
 
 
-def close_redis():
-    global redis_client
-    if redis_client:
-        redis_client.close()
-        print("Redis client has been closed")
-
-
-

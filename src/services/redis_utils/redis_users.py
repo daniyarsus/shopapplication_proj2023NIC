@@ -5,7 +5,7 @@ from src.settings.config import REDIS_URL
 
 async def read_all_redis_data():
     try:
-        client = redis.from_url(REDIS_URL)
+        client = redis.from_url("redis://default:h2CfIgbLenME656D5F1e2K6Bd2He1B3a@viaduct.proxy.rlwy.net:28951")
         keys = client.keys('*')
         data = {}
         for key in keys:
