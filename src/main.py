@@ -172,6 +172,12 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
     }
 
 
+@app.get("/test")
+@cache(expire=300, namespace=f"user_{user_identifier}")
+async def read_users_test(text: str):
+    return text
+
+
 @app.get("/redis-all-information")
 async def read_all_redis_data_endpoint():
     result = await read_all_redis_data()
