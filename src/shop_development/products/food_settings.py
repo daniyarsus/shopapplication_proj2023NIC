@@ -90,3 +90,54 @@ async def create_food_set(food_set, current_user):
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         db.close()
+
+
+async def update_food_set(food_set_data, current_user):
+    db = SessionLocal()
+    try:
+        employee = db.query(Employee).filter(Employee.user_id == current_user.id).first()
+        if not employee or employee.position.lower() != "owner":
+            raise HTTPException(status_code=403, detail="You are not authorized to update food sets.")
+
+        food_set = db.query(FoodSet).filter(FoodSet.id == food_set_data.id).first()
+        if food_set:
+            food_set.name = food_set_data.name
+            food_set.description = food_set_data.description
+            food_set.price = food_set_data.price
+            db.commit()
+            return {
+                "message": "Food set updated successfully",
+                "food_set_id": food_set.id,
+                "name": food_set.name,
+                "description": food_set.description,
+                "price": food_set.price
+            }
+        else:
+            raise HTTPException(status_code=404, detail="Food set not found")
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+async def delete_food_set(del_food_set, current_user):
+    db = SessionLocal()
+    try:
+        employee = db.query(Employee).filter(Employee.user_id == current_user.id).first()
+        if not employee or employee.position.lower() != "owner":
+            raise HTTPException(status_code=403, detail="You are not authorized to delete food sets.")
+
+        food_set = db.query(FoodSet).filter(FoodSet.id == del_food_set.id).first()
+        if food_set:
+            db.delete(food_set)
+            db.commit()
+            return {"message": "Food set deleted successfully", "food_set_id": del_food_set.id}
+        else:
+            raise HTTPException(status_code=404, detail="Food set not found")
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+

@@ -26,10 +26,11 @@ from src.auth.password.password_verification import send_email_forgotten_passwor
 from src.auth.user.active_status import activate_user_status, deactivate_user_status
 from src.services.redis_utils.redis_users import read_all_redis_data
 from src.shop_development.position_settings import add_employee, delete_employee, update_employee_position
-from src.shop_development.products.food_settings import create_food, update_food, delete_food, create_food_set
+from src.shop_development.products.food_settings import create_food, update_food, delete_food, create_food_set, update_food_set, delete_food_set
 from src.shop_development.products.favorite_food import add_favorite_food, delete_favorite_food, list_favorite_foods
 from src.settings.config import redis_client
-from src.auth.user.current_user import user_identifier
+#from src.auth.user.current_user import user_identifier
+from src.auth.logout.logout_user import logout
 
 app = FastAPI()
 
@@ -63,6 +64,12 @@ async def verify_code_endpoint(check: CheckCode):
 @app.post("/token")
 async def login_for_access_token_endpoint(form_data: OAuth2PasswordRequestForm = Depends()):
     result = await authenticate_user(form_data)
+    return result
+
+
+@app.delete("/logout")
+async def logout_from_redis_cache(current_user: User = Depends(get_current_user)):
+    result = await exit_session(current_user)
     return result
 
 
@@ -138,6 +145,18 @@ async def create_set_food_endpoint(food_set: FoodSetCreate, current_user: User =
     return result
 
 
+@app.put("/update-set-food")
+async def update_set_food_endpoint(food_set_data: FoodSetUpdate, current_user: User = Depends(get_current_user)):
+    result = await update_food_set(food_set_data, current_user)
+    return result
+
+
+@app.delete("/delete-set-food")
+async def update_set_food_endpoint(del_food_set: FoodSetDelete, current_user: User = Depends(get_current_user)):
+    result = await delete_food_set(del_food_set, current_user)
+    return result
+
+
 @app.post("/add-favorite-food")
 async def add_favorite_food_endpoint(food_data: AddFavoriteFood, current_user: User = Depends(get_current_user)):
     result = await add_favorite_food(food_data, current_user)
@@ -156,8 +175,17 @@ async def get_favorite_food_endpoint(current_user: User = Depends(get_current_us
     return result
 
 
+from fastapi_cache.coder import JsonCoder
+
+def user_cache_key_builder(func, namespace: str, request: Request, response: Response, args, kwargs):
+    # Получение текущего пользователя из зависимостей
+    current_user = kwargs["current_user"]
+    user_id = current_user.id
+    # Создание ключа кэша с ID пользователя
+    return f"{namespace}:{user_id}"
+
 @app.get("/me")
-@cache(expire=300, namespace=f"user_{user_identifier}")
+@cache(expire=60, coder=JsonCoder, key_builder=user_cache_key_builder)
 async def read_users_me(current_user: User = Depends(get_current_user)):
     return {
         "id": current_user.id,
@@ -173,7 +201,6 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
 
 
 @app.get("/test")
-@cache(expire=300, namespace=f"user_{user_identifier}")
 async def read_users_test(text: str):
     return text
 

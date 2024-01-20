@@ -21,5 +21,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
 
 async def user_identifier(user: User = Depends(get_current_user)):
-    return user.username
+    username = user.username
+    return username
 

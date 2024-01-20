@@ -79,4 +79,16 @@ class DeleteFavoriteFood(BaseModel):
 class FoodSetCreate(BaseModel):
     name: str
     description: str
-    price: str
+    price: float
+
+
+class FoodSetUpdate(BaseModel):
+    id: int
+    name: str
+    description: str
+    price: float
+
+
+class FoodSetDelete(BaseModel):
+    id: int
+
