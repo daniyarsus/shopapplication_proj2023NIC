@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from datetime import timedelta
 
-from src.settings.config import DOMAIN_NAME, API_KEY, SessionLocal
+from src.settings.config import DOMAIN_NAME, API_KEY, SessionLocal, EMAIL_FROM, SMTP_PORT
 from src.database.models import User, VerificationCode
 from src.validators.schemas import SendEmail
 from src.services.generate_code import generate_verification_code
@@ -37,21 +37,28 @@ async def send_email(post_email):
 
     db.commit()
 
-    try:
-        # Отправка письма с кодом подтверждения
-        response = requests.post(
-            f"https://api.mailgun.net/v3/{DOMAIN_NAME}/messages",
-            auth=("api", API_KEY),
-            data={
-                "from": f"Excited User <mailgun@{DOMAIN_NAME}>",
-                "to": existing_user.email,
-                "subject": "test application",
-                "text": f"for email {code}"
-            })
-        response.raise_for_status()
-        return {"message": "Email sent successfully", "status": response.status_code}
-    except requests.exceptions.RequestException as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+
+    email = EMAIL_FROM
+    receiver = post_email.email
+    subject = "Отправка кода для регистрации"
+    message = str(code)
+
+    msg = MIMEMultipart()
+    msg['From'] = email
+    msg['To'] = receiver
+    msg['Subject'] = subject
+    msg.attach(MIMEText(message, 'plain', 'utf-8'))
+
+    server = smtplib.SMTP(DOMAIN_NAME, SMTP_PORT)
+    server.starttls()
+    server.login(email, API_KEY)
+    server.send_message(msg)
+    server.quit()
+
+    return {"message": "Email sent successfully"}
 
 
 async def verification_code(check):

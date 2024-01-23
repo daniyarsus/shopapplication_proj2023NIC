@@ -16,7 +16,7 @@ from src.auth.signup.registration_user import register_user
 from src.services.redis_utils.redis_status import init_redis
 from src.services.postgres_utils import init_postgres
 from src.validators.schemas import *
-from src.settings.config import SessionLocal, ACCESS_TOKEN_EXPIRE_MINUTES, REDIS_URL
+from src.settings.config import SessionLocal, ACCESS_TOKEN_EXPIRE_MINUTES, REDIS_URL, DATABASE_URL, SECRET_KEY
 from src.database.models import User, FavoriteFood, FoodSet
 from src.auth.user.current_user import get_current_user
 from src.auth.signin.token import create_access_token
@@ -26,7 +26,8 @@ from src.auth.password.password_verification import send_email_forgotten_passwor
 from src.auth.user.active_status import activate_user_status, deactivate_user_status
 from src.services.redis_utils.redis_users import read_all_redis_data
 from src.shop_development.position_settings import add_employee, delete_employee, update_employee_position
-from src.shop_development.products.food_settings import create_food, update_food, delete_food, create_food_set, update_food_set, delete_food_set
+from src.shop_development.products.food_settings import (create_food, update_food, delete_food,
+                                                         create_food_set, update_food_set, delete_food_set)
 from src.shop_development.products.favorite_food import add_favorite_food, delete_favorite_food, list_favorite_foods
 from src.settings.config import redis_client
 #from src.auth.user.current_user import user_identifier

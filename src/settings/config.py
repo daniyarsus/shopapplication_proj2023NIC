@@ -14,7 +14,9 @@ load_dotenv()
 
 #Настройки для SMTP
 DOMAIN_NAME = os.getenv("DOMAIN_NAME")
+SMTP_PORT = os.getenv("SMTP_PORT")
 API_KEY = os.getenv("API_KEY")
+EMAIL_FROM = os.getenv("EMAIL_FROM")
 
 
 #Настройки для базы данных
