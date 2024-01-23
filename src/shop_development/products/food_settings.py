@@ -2,7 +2,6 @@ from fastapi import Depends, HTTPException, status
 
 from src.settings.config import SessionLocal
 from src.database.models import User, Employee, Assortment, FoodSet
-from typing import List
 
 
 async def create_food(new_food, current_user):
@@ -17,7 +16,8 @@ async def create_food(new_food, current_user):
         name=new_food.name,
         description=new_food.description,
         price=new_food.price,
-        type=new_food.type
+        type=new_food.type,
+        image_url=new_food.image_url
     )
     db.add(new_food)
     db.commit()
@@ -39,6 +39,7 @@ async def update_food(food_data, current_user):
         food.description = food_data.description
         food.price = food_data.price
         food.type = food_data.type
+        food.image_url = food_data.image_url
         db.commit()
         return {"message": "Food updated successfully", "food_id": food.id}
     else:
@@ -62,6 +63,17 @@ async def delete_food(del_food, current_user):
         raise HTTPException(status_code=404, detail="Food not found")
 
 
+async def get_all_assortment(current_user):
+    db = SessionLocal()
+    try:
+        assortment = db.query(Assortment).all()
+        return assortment
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
 async def create_food_set(food_set, current_user):
     db = SessionLocal()
     try:
@@ -72,7 +84,8 @@ async def create_food_set(food_set, current_user):
         new_food_set = FoodSet(
             name=food_set.name,
             description=food_set.description,
-            price=food_set.price
+            price=food_set.price,
+            image_url=food_set.image_url
         )
         db.add(new_food_set)
         db.commit()
@@ -104,6 +117,7 @@ async def update_food_set(food_set_data, current_user):
             food_set.name = food_set_data.name
             food_set.description = food_set_data.description
             food_set.price = food_set_data.price
+            food_set.image_url = food_set_data.image_url
             db.commit()
             return {
                 "message": "Food set updated successfully",
@@ -137,6 +151,17 @@ async def delete_food_set(del_food_set, current_user):
             raise HTTPException(status_code=404, detail="Food set not found")
     except Exception as e:
         db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+async def get_all_food_sets(current_user):
+    db = SessionLocal()
+    try:
+        food_sets = db.query(FoodSet).all()
+        return food_sets
+    except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         db.close()

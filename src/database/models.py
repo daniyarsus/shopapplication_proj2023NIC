@@ -66,5 +66,9 @@ class FoodSet(Base):
     image_url = Column(String, default=None)
 
 
+#class Payments(Base):
+#    __tablename__ = ""
+
+
 Base.metadata.create_all(engine)
 

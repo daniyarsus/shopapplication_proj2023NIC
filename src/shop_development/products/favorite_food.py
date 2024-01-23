@@ -59,20 +59,20 @@ async def list_favorite_foods(current_user):
         for favorite in favorites:
             food = db.query(Assortment).filter(Assortment.id == favorite.food_id).first()
             if food:
-                favorite_foods.append(
-                    FavoriteFoodResponse(
-                        food_id=food.id,
-                        name=food.name,
-                        description=food.description,
-                        price=food.price,
-                        type=food.type,
-                        image_url=food.image_url
-                    )
-                )
+                food_info = {
+                    "food_id": food.id,
+                    "name": food.name,
+                    "description": food.description,
+                    "price": food.price,
+                    "type": food.type,
+                    "image_url": food.image_url
+                }
+                favorite_foods.append(food_info)
         return favorite_foods
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         db.close()
+
 

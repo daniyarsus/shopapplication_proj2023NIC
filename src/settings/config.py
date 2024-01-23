@@ -37,3 +37,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 #Настройка для Redis
 REDIS_URL = os.environ.get("REDIS_URL")
 redis_client = redis.from_url(REDIS_URL)
+REDIS_URL_FOR_CACHE = os.environ.get("REDIS_URL_FOR_CACHE")
+redis_client_for_cache = redis.from_url(REDIS_URL_FOR_CACHE)
+

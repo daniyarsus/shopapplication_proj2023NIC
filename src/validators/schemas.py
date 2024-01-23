@@ -54,6 +54,7 @@ class CreateFood(BaseModel):
     description: str
     price: float
     type: str
+    image_url: str
 
 
 class UpdateFood(BaseModel):
@@ -62,6 +63,7 @@ class UpdateFood(BaseModel):
     description: str
     price: float
     type: str
+    image_url: str
 
 
 class DeleteFood(BaseModel):
@@ -80,6 +82,7 @@ class FoodSetCreate(BaseModel):
     name: str
     description: str
     price: float
+    image_url: str
 
 
 class FoodSetUpdate(BaseModel):
@@ -87,6 +90,7 @@ class FoodSetUpdate(BaseModel):
     name: str
     description: str
     price: float
+    image_url: str
 
 
 class FoodSetDelete(BaseModel):
