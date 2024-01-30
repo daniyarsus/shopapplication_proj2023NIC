@@ -80,6 +80,7 @@ class DeleteFavoriteFood(BaseModel):
 
 class FoodSetCreate(BaseModel):
     name: str
+    foods_id: List[int]
     description: str
     price: float
     image_url: str
@@ -87,6 +88,7 @@ class FoodSetCreate(BaseModel):
 
 class FoodSetUpdate(BaseModel):
     id: int
+    foods_id: List[int]
     name: str
     description: str
     price: float
@@ -95,4 +97,10 @@ class FoodSetUpdate(BaseModel):
 
 class FoodSetDelete(BaseModel):
     id: int
+
+
+class PaymentCreate(BaseModel):
+    products_id: List[int]
+    total: int
+    place: str
 

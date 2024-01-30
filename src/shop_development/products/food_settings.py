@@ -83,6 +83,7 @@ async def create_food_set(food_set, current_user):
 
         new_food_set = FoodSet(
             name=food_set.name,
+            foods_id=food_set.foods_id,
             description=food_set.description,
             price=food_set.price,
             image_url=food_set.image_url
@@ -115,6 +116,7 @@ async def update_food_set(food_set_data, current_user):
         food_set = db.query(FoodSet).filter(FoodSet.id == food_set_data.id).first()
         if food_set:
             food_set.name = food_set_data.name
+            food_set.foods_id = food_set_data.foods_id
             food_set.description = food_set_data.description
             food_set.price = food_set_data.price
             food_set.image_url = food_set_data.image_url

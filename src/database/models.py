@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy.dialects.postgresql import ARRAY
 
 from src.settings.config import Base, engine
 
@@ -61,17 +62,20 @@ class FoodSet(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
+    foods_id = Column(ARRAY(Integer), index=True)
     description = Column(String)
     price = Column(Integer, index=True)
     image_url = Column(String, default=None)
 
 
-#class Payments(Base):
-#    __tablename__ = "payments"
-#
-#    id = Column(Integer, primary_key=True, index=True)
-#    buyer_id = Column(Integer, ForeignKey("users.id"))
-#    foods_id = Column(Integer)
+class Payments(Base):
+    __tablename__ = "payments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    buyer_id = Column(Integer, ForeignKey("users.id"))
+    products_id = Column(ARRAY(String), index=True)
+    total = Column(Integer)
+    place = Column(String)
 
 
 Base.metadata.create_all(engine)
