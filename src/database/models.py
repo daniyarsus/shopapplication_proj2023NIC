@@ -73,7 +73,8 @@ class Payments(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     buyer_id = Column(Integer, ForeignKey("users.id"))
-    products_id = Column(ARRAY(String), index=True)
+    foods_id = Column(ARRAY(String), index=True)
+    sets_id = Column(ARRAY(Integer), index=True)
     total = Column(Integer)
     place = Column(String)
 

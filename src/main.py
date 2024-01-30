@@ -32,6 +32,7 @@ from src.shop_development.position_settings import add_employee, delete_employee
 from src.shop_development.products.food_settings import (create_food, update_food, delete_food,
                                                          create_food_set, update_food_set, delete_food_set,
                                                          get_all_assortment, get_all_food_sets)
+from src.shop_development.payment.payment_settings import create_payment
 from src.shop_development.products.favorite_food import add_favorite_food, delete_favorite_food, list_favorite_foods
 from src.settings.config import redis_client, redis_client_for_cache
 from src.auth.logout.logout_user import logout
@@ -225,6 +226,12 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
 @cache(expire=180)
 async def read_users_test(text: str):
     return text
+
+
+@app.post("/payment")
+async def payment_endpoint(payment_data: PaymentCreate, current_user: User = Depends(get_current_user)):
+    result = await create_payment(payment_data, current_user)
+    return result
 
 
 @app.get("/redis-all-information")

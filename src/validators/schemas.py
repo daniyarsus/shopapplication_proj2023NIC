@@ -100,7 +100,7 @@ class FoodSetDelete(BaseModel):
 
 
 class PaymentCreate(BaseModel):
-    products_id: List[int]
-    total: int
+    foods_id: List[int]
+    sets_id: List[int]
     place: str
 
