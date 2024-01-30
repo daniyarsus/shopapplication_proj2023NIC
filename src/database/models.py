@@ -67,7 +67,11 @@ class FoodSet(Base):
 
 
 #class Payments(Base):
-#    __tablename__ = ""
+#    __tablename__ = "payments"
+#
+#    id = Column(Integer, primary_key=True, index=True)
+#    buyer_id = Column(Integer, ForeignKey("users.id"))
+#    foods_id = Column(Integer)
 
 
 Base.metadata.create_all(engine)
