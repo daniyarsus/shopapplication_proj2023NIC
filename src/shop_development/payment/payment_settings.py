@@ -51,3 +51,52 @@ async def create_payment(payment_data, current_user):
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         db.close()
+
+
+async def update_payment(payment_data, current_user):
+    db = SessionLocal()
+    try:
+        # Находим существующую запись платежа
+        payment = db.query(Payments).filter(Payments.id == payment_data.id).first()
+        if not payment:
+            raise HTTPException(status_code=404, detail="Payment not found")
+
+        # Обновляем данные платежа
+        payment.foods_id = payment_data.foods_id
+        payment.sets_id = payment_data.sets_id
+        payment.place = payment_data.place
+        payment.is_payed = payment_data.is_payed
+        # Пересчитываем общую стоимость
+        payment.total = await calculate_total_price(payment_data.foods_id, payment_data.sets_id, db)
+
+        db.commit()
+        return {"message": "Payment updated successfully"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+
+
+async def delete_payment(payment_data, current_user):
+    db = SessionLocal()
+    try:
+        # Находим запись платежа для удаления
+        payment = db.query(Payments).filter(Payments.id == payment_data.id).first()
+        if not payment:
+            raise HTTPException(status_code=404, detail="Payment not found")
+
+        # Проверяем, что текущий пользователь - владелец платежа
+        if payment.buyer_id != current_user.id:
+            raise HTTPException(status_code=403, detail="Not authorized to delete this payment")
+
+        # Удаляем запись платежа
+        db.delete(payment)
+        db.commit()
+        return {"message": "Payment deleted successfully"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        db.close()
+

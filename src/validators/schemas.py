@@ -104,3 +104,14 @@ class PaymentCreate(BaseModel):
     sets_id: List[int]
     place: str
 
+
+class PaymentUpdate(BaseModel):
+    id: int
+    foods_id: List[int]
+    sets_id: List[int]
+    place: str
+    is_payed: bool
+
+
+class PaymentDelete(BaseModel):
+    id: int

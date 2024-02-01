@@ -77,6 +77,7 @@ class Payments(Base):
     sets_id = Column(ARRAY(Integer), index=True)
     total = Column(Integer)
     place = Column(String)
+    is_payed = Column(Boolean, default=False)
 
 
 Base.metadata.create_all(engine)

@@ -32,10 +32,10 @@ from src.shop_development.position_settings import add_employee, delete_employee
 from src.shop_development.products.food_settings import (create_food, update_food, delete_food,
                                                          create_food_set, update_food_set, delete_food_set,
                                                          get_all_assortment, get_all_food_sets)
-from src.shop_development.payment.payment_settings import create_payment
 from src.shop_development.products.favorite_food import add_favorite_food, delete_favorite_food, list_favorite_foods
 from src.settings.config import redis_client, redis_client_for_cache
 from src.auth.logout.logout_user import logout
+from src.shop_development.payment.payment_settings import create_payment, update_payment, delete_payment
 
 app = FastAPI()
 
@@ -228,9 +228,21 @@ async def read_users_test(text: str):
     return text
 
 
-@app.post("/payment")
-async def payment_endpoint(payment_data: PaymentCreate, current_user: User = Depends(get_current_user)):
+@app.post("/create-payment")
+async def create_payment_endpoint(payment_data: PaymentCreate, current_user: User = Depends(get_current_user)):
     result = await create_payment(payment_data, current_user)
+    return result
+
+
+@app.put("/update-payment")
+async def update_payment_endpoint(payment_data: PaymentUpdate, current_user: User = Depends(get_current_user)):
+    result = await update_payment(payment_data, current_user)
+    return result
+
+
+@app.delete("/delete-payment")
+async def delete_payment_endpoint(payment_data: PaymentDelete, current_user: User = Depends(get_current_user)):
+    result = await delete_payment(payment_data, current_user)
     return result
 
 
