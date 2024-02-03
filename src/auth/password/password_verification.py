@@ -42,7 +42,7 @@ async def send_email_forgotten_password(email_send):
     email = EMAIL_FROM
     receiver = post_email.email
     subject = "Отправка кода для изменения пароля"
-    message = str(code)
+    message = f"Ваш код: {str(code)}"
 
     msg = MIMEMultipart()
     msg['From'] = email

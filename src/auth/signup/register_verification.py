@@ -44,7 +44,7 @@ async def send_email(post_email):
     email = EMAIL_FROM
     receiver = post_email.email
     subject = "Отправка кода для регистрации"
-    message = str(code)
+    message = f"Ваш код: {str(code)}"
 
     msg = MIMEMultipart()
     msg['From'] = email
