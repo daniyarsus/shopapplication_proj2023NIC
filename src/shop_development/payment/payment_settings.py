@@ -7,22 +7,25 @@ from src.database.models import User, Employee, Assortment, FoodSet, Payments
 async def calculate_total_price(foods_id, sets_id, db):
     # Расчет общей стоимости для отдельных блюд
     total_price = 0
-    if foods_id:
-        for food_id in foods_id:
-            food = db.query(Assortment).filter(Assortment.id == food_id).first()
-            if food:
-                total_price += food.price
-            else:
-                raise HTTPException(status_code=404, detail=f"Food with id {food_id} not found")
+    if foods_id and sets_id > 0:
+        if foods_id:
+            for food_id in foods_id:
+                food = db.query(Assortment).filter(Assortment.id == food_id).first()
+                if food:
+                    total_price += food.price
+                else:
+                    raise HTTPException(status_code=404, detail=f"Food with id {food_id} not found")
 
-    # Расчет общей стоимости для наборов блюд
-    if sets_id:
-        for set_id in sets_id:
-            food_set = db.query(FoodSet).filter(FoodSet.id == set_id).first()
-            if food_set:
-                total_price += food_set.price
-            else:
-                raise HTTPException(status_code=404, detail=f"Food set with id {set_id} not found")
+        # Расчет общей стоимости для наборов блюд
+        if sets_id:
+            for set_id in sets_id:
+                food_set = db.query(FoodSet).filter(FoodSet.id == set_id).first()
+                if food_set:
+                    total_price += food_set.price
+                else:
+                    raise HTTPException(status_code=404, detail=f"Food set with id {set_id} not found")
+    else:
+        raise HTTPException(status_code=404, detail=f"Такого блюда не существует.")
 
     return total_price
 

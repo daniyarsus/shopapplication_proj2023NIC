@@ -14,7 +14,7 @@ class User(Base):
     phone_number = Column(String, unique=True, index=True)
     username = Column(String, unique=True, index=True)
     password = Column(String)
-    image_url = Column(String, default=None)
+    image_bs64 = Column(String, default=None)
     is_verified = Column(Boolean, default=False)
     is_active = Column(Boolean, default=None)
 
@@ -46,7 +46,7 @@ class Assortment(Base):
     name = Column(String)
     description = Column(String)
     price = Column(Integer, index=True)
-    image_url = Column(String, default=None)
+    image_bs64 = Column(String, default=None)
 
 
 class FavoriteFood(Base):
@@ -65,7 +65,7 @@ class FoodSet(Base):
     foods_id = Column(ARRAY(Integer), index=True)
     description = Column(String)
     price = Column(Integer, index=True)
-    image_url = Column(String, default=None)
+    image_bs64 = Column(String, default=None)
 
 
 class Payments(Base):

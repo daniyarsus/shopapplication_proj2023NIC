@@ -17,7 +17,7 @@ async def create_food(new_food, current_user):
         description=new_food.description,
         price=new_food.price,
         type=new_food.type,
-        image_url=new_food.image_url
+        image_bs64=new_food.image_bs64
     )
     db.add(new_food)
     db.commit()
@@ -39,7 +39,7 @@ async def update_food(food_data, current_user):
         food.description = food_data.description
         food.price = food_data.price
         food.type = food_data.type
-        food.image_url = food_data.image_url
+        food.image_bs64 = food_data.image_bs64
         db.commit()
         return {"message": "Food updated successfully", "food_id": food.id}
     else:
@@ -86,7 +86,7 @@ async def create_food_set(food_set, current_user):
             foods_id=food_set.foods_id,
             description=food_set.description,
             price=food_set.price,
-            image_url=food_set.image_url
+            image_bs64=food_set.image_bs64
         )
         db.add(new_food_set)
         db.commit()
@@ -119,7 +119,7 @@ async def update_food_set(food_set_data, current_user):
             food_set.foods_id = food_set_data.foods_id
             food_set.description = food_set_data.description
             food_set.price = food_set_data.price
-            food_set.image_url = food_set_data.image_url
+            food_set.image_bs64 = food_set_data.image_bs64
             db.commit()
             return {
                 "message": "Food set updated successfully",

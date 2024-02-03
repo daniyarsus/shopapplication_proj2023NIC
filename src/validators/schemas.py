@@ -9,6 +9,7 @@ class UserRegister(BaseModel):
     phone_number: str
     username: str
     password: str
+    image_bs64: str
 
 
 class UserLogin(BaseModel):
@@ -54,7 +55,7 @@ class CreateFood(BaseModel):
     description: str
     price: float
     type: str
-    image_url: str
+    image_bs64: str
 
 
 class UpdateFood(BaseModel):
@@ -63,7 +64,7 @@ class UpdateFood(BaseModel):
     description: str
     price: float
     type: str
-    image_url: str
+    image_bs64: str
 
 
 class DeleteFood(BaseModel):
@@ -83,7 +84,7 @@ class FoodSetCreate(BaseModel):
     foods_id: List[int]
     description: str
     price: float
-    image_url: str
+    image_bs64: str
 
 
 class FoodSetUpdate(BaseModel):
@@ -92,7 +93,7 @@ class FoodSetUpdate(BaseModel):
     name: str
     description: str
     price: float
-    image_url: str
+    image_bs64: str
 
 
 class FoodSetDelete(BaseModel):

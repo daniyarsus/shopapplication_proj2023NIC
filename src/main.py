@@ -36,6 +36,7 @@ from src.shop_development.products.favorite_food import add_favorite_food, delet
 from src.settings.config import redis_client, redis_client_for_cache
 from src.auth.logout.logout_user import logout
 from src.shop_development.payment.payment_settings import create_payment, update_payment, delete_payment
+from src.auth.user.info_about_user import info_about_me
 
 app = FastAPI()
 
@@ -113,7 +114,6 @@ async def activate_user_endpoint(current_user: User = Depends(get_current_user))
 
 
 @app.put("/deactivate-status")
-
 async def deactivate_user_endpoint(current_user: User = Depends(get_current_user)):
     result = await deactivate_user_status(current_user)
     return result
@@ -156,7 +156,7 @@ async def delete_food_endpoint(del_food: DeleteFood, current_user: User = Depend
 
 
 @app.get("/get-all-assortment")
-@cache(expire=10, coder=JsonCoder, key_builder=user_cache_key_builder)
+@cache(expire=30, coder=JsonCoder, key_builder=user_cache_key_builder)
 async def get_all_assortment_endpoint(current_user: User = Depends(get_current_user)):
     result = await get_all_assortment(current_user)
     return result
@@ -181,7 +181,7 @@ async def update_set_food_endpoint(del_food_set: FoodSetDelete, current_user: Us
 
 
 @app.get("/get-all-food-sets")
-@cache(expire=10, coder=JsonCoder, key_builder=user_cache_key_builder)
+@cache(expire=30, coder=JsonCoder, key_builder=user_cache_key_builder)
 async def get_all_food_sets_endpoint(current_user: User = Depends(get_current_user)):
     result = await get_all_food_sets(current_user)
     return result
@@ -200,26 +200,17 @@ async def delete_favorite_food_endpoint(food_data: DeleteFavoriteFood, current_u
 
 
 @app.get("/get-favorite-food")
-@cache(expire=10, coder=JsonCoder, key_builder=user_cache_key_builder)
+@cache(expire=5, coder=JsonCoder, key_builder=user_cache_key_builder)
 async def get_favorite_food_endpoint(current_user: User = Depends(get_current_user)):
     result = await list_favorite_foods(current_user)
     return result
 
 
 @app.get("/me")
-@cache(expire=2, coder=JsonCoder, key_builder=user_cache_key_builder)
+@cache(expire=5, coder=JsonCoder, key_builder=user_cache_key_builder)
 async def read_users_me(current_user: User = Depends(get_current_user)):
-    return {
-        "id": current_user.id,
-        "name": current_user.name,
-        "lastname": current_user.lastname,
-        "email": current_user.email,
-        "username": current_user.username,
-        "phone_number": current_user.phone_number,
-        "image_url": current_user.image_url,
-        "is_active": current_user.is_active,
-        "is_verified": current_user.is_verified
-    }
+    result = await info_about_me(current_user)
+    return result
 
 
 @app.get("/test")
