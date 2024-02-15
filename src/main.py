@@ -14,10 +14,11 @@ from src.routers import api_router
 app = FastAPI(
     title="DoughJoy Delights API",
     description="API for DoughJoy Delights",
-    contact={"name": "Daniyar",
+    contact={"name": "Hui",
              "email": "daniyar.kanu@gmail.com",
              "x-telegram": "danyaKex"},
-    version="1.0.0"
+    version="1.0.0",
+    docs_url="/api/v1/docs"
 )
 
 app.add_middleware(

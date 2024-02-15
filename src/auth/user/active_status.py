@@ -1,37 +1,52 @@
 from fastapi import HTTPException
 
 from src.database.models import User
-from src.settings.config import SessionLocal
 
 
-async def activate_user_status(current_user):
-    db = SessionLocal()
+class UserActivateStatus:
+    def __init__(self, current_user, db):
+        self.current_user = current_user
+        self.db = db
 
-    user = db.query(User).filter(User.username == current_user.username).first()
-    if not user:
-        db.close()
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    async def check_user(self):
+        user_db = self.db.query(User).filter(User.id == self.current_user.id).first()
 
-    user.is_active = True
-    db.add(user)
-    db.commit()
-    db.close()
+        if not user_db:
+            raise HTTPException(status_code=404, detail="User not found")
 
-    return {"message": "User activated successfully"}
+        return user_db
+
+    async def activate_status(self):
+        user_db = await self.check_user()
+
+        user_db.is_active = True
+        self.db.add(user)
+        self.db.commit()
+        self.db.close()
+
+        return {"message": "User activated successfully"}
 
 
-async def deactivate_user_status(current_user):
-    db = SessionLocal()
+class UserDeactivateStatus:
+    def __init__(self, current_user, db):
+        self.current_user = current_user
+        self.db = db
 
-    user = db.query(User).filter(User.username == current_user.username).first()
-    if not user:
-        db.close()
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    async def check_user(self):
+        user_db = self.db.query(User).filter(User.id == self.current_user.id).first()
 
-    user.is_active = False
-    db.add(user)
-    db.commit()
-    db.close()
+        if not user_db:
+            raise HTTPException(status_code=404, detail="User not found")
 
-    return {"message": "User deactivated successfully"}
+        return user_db
+
+    async def deactivate_status(self):
+        user_db = await self.check_user()
+
+        user_db.is_active = False
+        self.db.add(user)
+        self.db.commit()
+        self.db.close()
+
+        return {"message": "User deactivated successfully"}
 

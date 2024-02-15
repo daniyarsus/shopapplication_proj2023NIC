@@ -87,4 +87,3 @@ async def verification_code(check):
     existing_user.is_verified = True
     db.commit()
     return {"message": "User has been verified"}
-

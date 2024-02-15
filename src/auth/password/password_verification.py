@@ -48,6 +48,7 @@ async def send_email_forgotten_password(email_send):
     msg['From'] = email
     msg['To'] = receiver
     msg['Subject'] = subject
+
     msg.attach(MIMEText(message, 'plain', 'utf-8'))
 
     server = smtplib.SMTP(DOMAIN_NAME, SMTP_PORT)

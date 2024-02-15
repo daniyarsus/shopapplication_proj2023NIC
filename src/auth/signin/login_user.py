@@ -36,3 +36,7 @@ async def authenticate_user(form_data):
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
+
+#class LoginUser:
+#    def __init__(self, form_data):
+

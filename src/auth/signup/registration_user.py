@@ -1,26 +1,34 @@
 from fastapi import Depends, HTTPException
-from tempfile import NamedTemporaryFile
+from sqlalchemy.orm import Session
 
-from src.settings.config import SessionLocal
 from src.database.models import User
+from src.validators.schemas import UserRegister
 
 
-async def register_user(user_in):
-    session = SessionLocal()
-    existing_user = session.query(User).filter(User.username == user_in.username).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="User is registered")
+class RegistrationUser:
+    def __init__(self, user_in, db):
+        self.user_in = user_in
+        self.db = db
 
-    user = User(
-        name=user_in.name,
-        lastname=user_in.lastname,
-        email=user_in.email,
-        phone_number=user_in.phone_number,
-        username=user_in.username,
-        password=user_in.password,
-        image_bs64=user_in.image_bs64
-    )
-    session.add(user)
-    session.commit()
-    return {"message": "Successfully registered"}
+    async def _check_existing_user(self):
+        existing_user = self.db.query(User).filter(User.username == self.user_in.username).first()
+        if existing_user:
+            raise HTTPException(status_code=400, detail="User is registered")
+
+    async def register_user(self):
+        await self._check_existing_user()
+
+        user = User(
+            name=self.user_in.name,
+            lastname=self.user_in.lastname,
+            email=self.user_in.email,
+            phone_number=self.user_in.phone_number,
+            username=self.user_in.username,
+            password=self.user_in.password,
+            image_bs64=self.user_in.image_bs64
+        )
+        self.db.add(user)
+        self.db.commit()
+        self.db.refresh(user)
+        return {"message": "Successfully registered"}
 

@@ -1,12 +1,9 @@
 from fastapi import Depends, HTTPException, status
 
-from src.settings.config import SessionLocal
 from src.database.models import User, FavoriteFood, Assortment
 
 
-async def add_favorite_food(food_data, current_user):
-    # Создание сессии
-    db = SessionLocal()
+async def add_favorite_food(food_data, current_user, db):
 
     try:
         # Проверяем, существует ли блюдо
@@ -35,9 +32,7 @@ async def add_favorite_food(food_data, current_user):
         db.close()
 
 
-async def delete_favorite_food(food_data, current_user):
-    db = SessionLocal()
-    # Находим блюдо в избранном
+async def delete_favorite_food(food_data, current_user, db):
     favorite = db.query(FavoriteFood).filter(
         FavoriteFood.user_id == current_user.id,
         FavoriteFood.food_id == food_data.food_id
@@ -51,8 +46,7 @@ async def delete_favorite_food(food_data, current_user):
     return {"message": "Food removed from favorite successfully"}
 
 
-async def list_favorite_foods(current_user):
-    db = SessionLocal()
+async def list_favorite_foods(current_user, db):
     try:
         favorites = db.query(FavoriteFood).filter(FavoriteFood.user_id == current_user.id).all()
         favorite_foods = []

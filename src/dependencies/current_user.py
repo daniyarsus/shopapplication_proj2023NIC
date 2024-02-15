@@ -18,9 +18,3 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     if user is None:
         raise HTTPException(status_code=401, detail="Invalid authentication credentials")
     return user
-
-
-async def user_identifier(user: User = Depends(get_current_user)):
-    username = user.username
-    return username
-
