@@ -1,6 +1,6 @@
 import os
 #from redis import asyncio as aioredis
-import redis
+from redis import asyncio as redis
 import asyncpg
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
@@ -39,4 +39,3 @@ REDIS_URL = os.environ.get("REDIS_URL")
 redis_client = redis.from_url(REDIS_URL)
 REDIS_URL_FOR_CACHE = os.environ.get("REDIS_URL_FOR_CACHE")
 redis_client_for_cache = redis.from_url(REDIS_URL_FOR_CACHE)
-

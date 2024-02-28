@@ -9,7 +9,6 @@ from src.validators.schemas import *
 from src.database.models import User
 from src.auth.signin.login_user import authenticate_user
 from src.auth.password.password_verification import send_email_forgotten_password, reset_password
-from src.services.redis_utils.redis_users import read_all_redis_data, read_all_redis_data_for_cache
 from src.services.redis_utils.cache_key import user_cache_key_builder
 from src.shop.products.favorite_food import add_favorite_food, delete_favorite_food, list_favorite_foods
 from src.settings.config import redis_client_for_cache
@@ -27,6 +26,7 @@ from src.auth.user.active_status import UserActivateStatus, UserDeactivateStatus
 from src.shop.employee.position_settings import EmployeeManager
 from src.shop.products.base_food import FoodManager
 from src.shop.products.food_set import FoodSetManager
+from src.services.redis_utils.redis_users import ReadRedisData
 
 api_router = APIRouter()
 
@@ -248,14 +248,18 @@ async def delete_payment_endpoint(payment_data: PaymentDelete, current_user: Use
 
 
 @api_router.get("/redis-all/information")
-async def read_all_redis_data_endpoint():
-    result = await read_all_redis_data()
+async def read_all_redis_data_endpoint(current_user: User = Depends(get_current_user),
+                                       db: Session = Depends(get_db)):
+    redis_data = ReadRedisData(current_user, db)
+    result = await redis_data.read_users_in_redis()
     return result
-
+    
 
 @api_router.get("/redis-cache/all-information")
-async def read_all_redis_cache_data_endpoint():
-    result = await read_all_redis_data_for_cache()
+async def read_all_redis_cache_data_endpoint(current_user: User = Depends(get_current_user),
+                                             db: Session = Depends(get_db)):
+    redis_data = ReadRedisData(current_user, db)
+    result = await redis_data.read_cache_in_redis()
     return result
 
 
