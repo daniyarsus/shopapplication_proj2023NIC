@@ -6,7 +6,7 @@ from api.settings.config import PostgresDataBaseSettings, settings
 
 async_engine = create_async_engine(
     #url=settings.pg_database.POSTGRES_DATABASE_URL,
-    url="postgresql+asyncpg://postgres:5GbA2D6bDG66fBgE1bc-ed-C-GEfDgAC@viaduct.proxy.rlwy.net:50101/railway",
+    url="sqlite+aiosqlite:///./test.db",
     echo=False
 )
 

@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.settings.config import settings
 from api.services.auth.models import User
-from api.services.auth.signin.controllers import oauth2_scheme
+from api.services.auth.crud.signin.controllers import oauth2_scheme
 from api.utils.dependencies.db import get_db
 
 
@@ -21,8 +21,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme),
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Invalid authentication credentials")
 
-    stmt = select(User).where(User.username == username)
-    result = await db.execute(stmt)
+    query = select(User).where(User.username == username)
+    result = await db.execute(query)
     user = result.scalars().first()
 
     if user is None:

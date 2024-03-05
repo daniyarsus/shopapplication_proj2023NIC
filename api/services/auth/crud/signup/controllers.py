@@ -1,10 +1,10 @@
-from fastapi import Depends, HTTPException
+from fastapi import HTTPException
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from api.services.auth.models import User
-from api.services.auth.signup.schemas import SignupSchema, SignupEmailSend, SignupEmailVerify
+from api.services.auth.crud.signup.schemas import SignupSchema, SignupEmailSend
 
 
 class SignupManager:

@@ -1,4 +1,4 @@
-import asyncio
+import uvicorn
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,6 +8,7 @@ from api.database.database import (Base,
 
 from api.services.auth.handlers import auth_router
 from api.internal.shop.handlers import shop_router
+from api.internal.management.handlers import management_router
 
 
 app = FastAPI(title="FastAPI API",
@@ -26,7 +27,8 @@ app.add_middleware(
 
 
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["Auth API"])
-app.include_router(shop_router, prefix="/api/v1/internal/shop", tags=["Internal API"])
+app.include_router(shop_router, prefix="/api/v1/internal/shop", tags=["Internal API - shop"])
+app.include_router(management_router, prefix="/api/v1/internal/management", tags=["Internal API - management"])
 
 
 @app.on_event("startup")
@@ -41,4 +43,8 @@ async def startup() -> None:
 @app.get("/")
 async def index():
     return {"message": "Hello world"}
+
+
+if __name__ == "__main__":
+    uvicorn.run(app=app, host="0.0.0.0", port="8000")
 

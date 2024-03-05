@@ -1,6 +1,7 @@
 from datetime import datetime
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import (ForeignKey,
+                        String)
 from sqlalchemy.orm import (Mapped,
                             mapped_column)
 
@@ -12,11 +13,7 @@ class Employee(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
-    name: Mapped[str] = mapped_column(ForeignKey('users.name'))
-    lastname: Mapped[str] = mapped_column(ForeignKey('users.lastname'))
-    email: Mapped[str] = mapped_column(ForeignKey('users.email'))
-    phone: Mapped[str] = mapped_column(ForeignKey('users.phone'))
-    username: Mapped[str] = mapped_column(ForeignKey('users.username'))
-    added_on: datetime = mapped_column(default=datetime.utcnow)
-    changed_on: datetime = mapped_column(default=datetime.utcnow)
-    #permisiion
+    username: Mapped[str] = mapped_column(String(25))
+    added_on: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    changed_on: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    permission: Mapped[int] = mapped_column()
