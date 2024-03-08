@@ -17,7 +17,7 @@ from api.utils.redis.redis_client import redis_client
 
 
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="/api/v1/auth/token"
+    tokenUrl="/api/v1/client/auth/token"
 )
 
 

@@ -22,3 +22,12 @@ class UpdateEmployee(Employee):
 class DeleteEmployee(Employee):
     pass
 
+
+#class EmployeeSchema:
+#    def __init__(self):
+#        self.create = CreateEmployee()
+#        self.update = UpdateEmployee()
+#        self.delete = DeleteEmployee()
+#
+#
+#employee_schema: EmployeeSchema = EmployeeSchema()

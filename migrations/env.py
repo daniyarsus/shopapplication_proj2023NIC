@@ -5,15 +5,11 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from src.database.models import Base
-from src.settings.config import DATABASE_URL
+from api.database.database import Base
+from api.settings.config import settings
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
 config = context.config
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
@@ -22,12 +18,8 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 
-target_metadata = Base.metadata
 
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
+target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
@@ -42,7 +34,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option(DATABASE_URL)
+    url = config.get_main_option(settings.pg_database.POSTGRES_DATABASE_URL)
     context.configure(
         url=url,
         target_metadata=target_metadata,

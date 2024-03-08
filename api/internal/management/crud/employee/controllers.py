@@ -9,14 +9,15 @@ from fastapi import HTTPException, status
 from sqlalchemy import select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api.services.auth.models import User
+from api.internal.auth.models import User
 from api.internal.management.crud.employee import schemas
 from api.internal.management.models import Employee
 
 
 class BaseEmployeeManager(ABC):
-    def __init__(self, db: AsyncSession):
+    def __init__(self, db: AsyncSession, current_user: User) -> None:
         self.db = db
+        self.current_user = current_user
 
     @abstractmethod
     async def create_employee(self, create_data: schemas.CreateEmployee) -> Dict[str, Any]:
@@ -36,8 +37,8 @@ class BaseEmployeeManager(ABC):
 
 
 class EmployeeManager(BaseEmployeeManager):
-    def __init__(self, db: AsyncSession):
-        super().__init__(db)
+    def __init__(self, db: AsyncSession, current_user: User) -> None:
+        super().__init__(db, current_user)
 
     async def create_employee(self, create_data: schemas.CreateEmployee) -> Dict[str, Any]:
         try:
