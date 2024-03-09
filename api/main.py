@@ -11,6 +11,7 @@ from api.database.database import (Base,
 from api.services.auth.handlers import auth_router
 from api.services.shop.crud.payment.handlers import router as client_payment_router
 from api.services.shop.crud.favorite_food.handlers import router as client_favorite_food_router
+from api.services.shop.crud.assortment.handlers import router as client_assortment_router
 from api.internal.shop.handlers import shop_router
 from api.internal.management.handlers import management_router
 
@@ -31,9 +32,10 @@ app.add_middleware(
 
 
 app.include_router(auth_router, prefix="/api/v1/client/auth", tags=["Client API - auth"])
+app.include_router(client_assortment_router, prefix="/api/v1/client/food", tags=["Client API - food"])
 app.include_router(client_payment_router, prefix="/api/v1/payment", tags=["Client API - payment"])
 app.include_router(client_favorite_food_router, prefix="/api/v1/favorite_food", tags=["Client API - favorite food"])
-app.include_router(shop_router, prefix="/api/v1/internal/shop", tags=["Internal API - shop"])
+app.include_router(shop_router, prefix="/api/v1/internal/food", tags=["Internal API - food"])
 app.include_router(management_router, prefix="/api/v1/internal/management", tags=["Internal API - management"])
 
 

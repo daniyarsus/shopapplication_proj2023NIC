@@ -30,6 +30,6 @@ class VerificationCode(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(index=True)
     code_email: Mapped[str] = mapped_column(index=True)
-    email_verified_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    email_send_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
     code_password: Mapped[str] = mapped_column(index=True)
-    password_verified_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    password_send_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
