@@ -13,6 +13,7 @@ shop_router = APIRouter()
 
 
 @shop_router.post("/create-food")
+@permission_required(2)
 async def create_food_endpoint(create_data: schemas.CreateAssortmentFood = Depends(),
                                db: AsyncSession = Depends(get_db),
                                current_user: User = Depends(get_current_user)
@@ -24,6 +25,7 @@ async def create_food_endpoint(create_data: schemas.CreateAssortmentFood = Depen
 
 
 @shop_router.put("/update-food")
+@permission_required(2)
 async def update_food_endpoint(update_data: schemas.UpdateAssortmentFood = Depends(),
                                db: AsyncSession = Depends(get_db),
                                current_user: User = Depends(get_current_user)
@@ -35,6 +37,7 @@ async def update_food_endpoint(update_data: schemas.UpdateAssortmentFood = Depen
 
 
 @shop_router.delete("/delete-food")
+@permission_required(2)
 async def delete_food_endpoint(delete_data: schemas.DeleteAssortmentFood = Depends(),
                                db: AsyncSession = Depends(get_db),
                                current_user: User = Depends(get_current_user)
@@ -46,6 +49,7 @@ async def delete_food_endpoint(delete_data: schemas.DeleteAssortmentFood = Depen
 
 
 @shop_router.get("/get-all-food")
+@permission_required(1)
 async def get_base_food_endpoint(db: AsyncSession = Depends(get_db),
                                  current_user: User = Depends(get_current_user)
                                  ):

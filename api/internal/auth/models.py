@@ -15,7 +15,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(unique=True, index=True)
     phone: Mapped[str] = mapped_column(unique=True, index=True)
     username: Mapped[str] = mapped_column(unique=True, index=True)
-    password: Mapped[str]
+    password: Mapped[str] = mapped_column(index=True)
     register_on: Mapped[datetime] = mapped_column(default=datetime.utcnow)
     login_on: Mapped[datetime] = mapped_column(default=datetime.utcnow)
     changed_on: Mapped[datetime] = mapped_column(default=datetime.utcnow)

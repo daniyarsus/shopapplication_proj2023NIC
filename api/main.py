@@ -12,8 +12,10 @@ from api.services.auth.handlers import auth_router
 from api.services.shop.crud.payment.handlers import router as client_payment_router
 from api.services.shop.crud.favorite_food.handlers import router as client_favorite_food_router
 from api.services.shop.crud.assortment.handlers import router as client_assortment_router
-from api.internal.shop.handlers import shop_router
-from api.internal.management.handlers import management_router
+
+from api.internal.shop.crud.assortment.handlers import shop_router
+from api.internal.management.crud.employee.handlers import management_router
+from api.internal.auth.crud.user.handlers import router as user_router
 
 
 app = FastAPI(title="FastAPI API",
@@ -35,8 +37,10 @@ app.include_router(auth_router, prefix="/api/v1/client/auth", tags=["Client API 
 app.include_router(client_assortment_router, prefix="/api/v1/client/food", tags=["Client API - food"])
 app.include_router(client_payment_router, prefix="/api/v1/payment", tags=["Client API - payment"])
 app.include_router(client_favorite_food_router, prefix="/api/v1/favorite_food", tags=["Client API - favorite food"])
-app.include_router(shop_router, prefix="/api/v1/internal/food", tags=["Internal API - food"])
-app.include_router(management_router, prefix="/api/v1/internal/management", tags=["Internal API - management"])
+
+app.include_router(user_router, prefix="/api/v1/user", tags=["Internal API - user"])
+app.include_router(shop_router, prefix="/api/v1/food", tags=["Internal API - food"])
+app.include_router(management_router, prefix="/api/v1/management", tags=["Internal API - management"])
 
 
 @app.on_event("startup")
@@ -51,8 +55,3 @@ async def startup() -> None:
 @app.get("/")
 async def index():
     return {"message": "Hello world"}
-
-
-if __name__ == "__main__":
-    uvicorn.run(app=app, host="0.0.0.0", port="8000")
-

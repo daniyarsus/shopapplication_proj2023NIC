@@ -53,13 +53,13 @@ class SigninManager:
             )
 
         access_token_expires = timedelta(minutes=int(settings.jwt_auth.ACCESS_TOKEN_EXPIRE_MINUTES))
-        token_manager = AccessTokenManager(data={"sub": user.username},
-                                           expires_delta=access_token_expires)
-        access_token = token_manager.create_access_token()
+        token_manager = TokenManager(data={"sub": user.username},
+                                     expires_delta=access_token_expires)
+        access_token = token_manager.create_token()
         return {"access_token": access_token, "token_type": "bearer"}
 
 
-class AccessTokenManager:
+class TokenManager:
     def __init__(self,
                  data: dict,
                  expires_delta: timedelta = None):
@@ -67,7 +67,7 @@ class AccessTokenManager:
         self.expires_delta = expires_delta or None
         self.to_encode = self.data.copy()
 
-    def create_access_token(self):
+    def create_token(self):
         if self.expires_delta:
             expire = datetime.utcnow() + self.expires_delta
         else:

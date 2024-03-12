@@ -12,11 +12,11 @@ class Employee(BaseModel):
 
 
 class CreateEmployee(Employee):
-    permission: Annotated[int, Field(...)]
+    pass
 
 
 class UpdateEmployee(Employee):
-    permission: Annotated[int, Field(...)]
+    pass
 
 
 class DeleteEmployee(Employee):

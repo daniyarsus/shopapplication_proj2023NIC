@@ -13,7 +13,5 @@ class Employee(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
-    username: Mapped[str] = mapped_column(String(25))
     added_on: Mapped[datetime] = mapped_column(default=datetime.utcnow)
     changed_on: Mapped[datetime] = mapped_column(default=datetime.utcnow)
-    permission: Mapped[int] = mapped_column()

@@ -53,9 +53,7 @@ class EmployeeManager(BaseEmployeeManager):
                 await self.db.refresh(employee)
 
             worker = Employee(
-                user_id=create_data.id,
-                username=employee.username,
-                permission=create_data.permission
+                user_id=create_data.id
             )
 
             self.db.add(worker)
@@ -73,8 +71,6 @@ class EmployeeManager(BaseEmployeeManager):
             employee = result.scalar_one_or_none()
 
             if employee:
-                employee.permission = update_data.permission
-                employee.changed_on = datetime.utcnow()
 
                 await self.db.commit()
                 await self.db.refresh(employee)
@@ -110,10 +106,10 @@ class EmployeeManager(BaseEmployeeManager):
         result = await self.db.execute(query)
         employee = result.scalars().all()
         employee_data = [
-            {"id": employee.id,
-             "user_id": employee.user_id,
-             "username": employee.username,
-             "permission": employee.permission}
+            {
+             "id": employee.id,
+             "user_id": employee.user_id
+             }
             for employee in employee
         ]
 
