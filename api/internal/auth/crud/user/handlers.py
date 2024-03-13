@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api.utils.decorators.permission import permission_required
 from api.utils.dependencies.current_user import get_current_user
 from api.utils.dependencies.db import get_db
 
@@ -11,6 +12,7 @@ from api.internal.auth.crud.user import schemas
 router = APIRouter()
 
 
+@permission_required(2)
 @router.post("/create-user")
 async def create_employee_endpoint(create_data: schemas.CreateUser = Depends(),
                                    db: AsyncSession = Depends(get_db),
@@ -22,6 +24,7 @@ async def create_employee_endpoint(create_data: schemas.CreateUser = Depends(),
     return result
 
 
+@permission_required(2)
 @router.put("/update-user")
 async def create_employee_endpoint(update_data: schemas.UpdateUser = Depends(),
                                    db: AsyncSession = Depends(get_db),
@@ -33,6 +36,7 @@ async def create_employee_endpoint(update_data: schemas.UpdateUser = Depends(),
     return result
 
 
+@permission_required(2)
 @router.delete("/delete-user")
 async def create_employee_endpoint(delete_data: schemas.DeleteUser = Depends(),
                                    db: AsyncSession = Depends(get_db),
@@ -44,6 +48,7 @@ async def create_employee_endpoint(delete_data: schemas.DeleteUser = Depends(),
     return result
 
 
+@permission_required(1)
 @router.get("/get-all-user")
 async def get_employee_endpoint(db: AsyncSession = Depends(get_db),
                                 current_user: User = Depends(get_current_user)

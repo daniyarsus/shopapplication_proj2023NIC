@@ -16,6 +16,7 @@ from api.services.shop.crud.assortment.handlers import router as client_assortme
 from api.internal.shop.crud.assortment.handlers import shop_router
 from api.internal.management.crud.employee.handlers import management_router
 from api.internal.auth.crud.user.handlers import router as user_router
+from api.internal.shop.crud.payment.handlers import router as payment_router
 
 
 app = FastAPI(title="FastAPI API",
@@ -33,14 +34,34 @@ app.add_middleware(
 )
 
 
-app.include_router(auth_router, prefix="/api/v1/client/auth", tags=["Client API - auth"])
-app.include_router(client_assortment_router, prefix="/api/v1/client/food", tags=["Client API - food"])
-app.include_router(client_payment_router, prefix="/api/v1/payment", tags=["Client API - payment"])
-app.include_router(client_favorite_food_router, prefix="/api/v1/favorite_food", tags=["Client API - favorite food"])
+"""Client API endpoints"""
+app.include_router(auth_router,
+                   prefix="/api/v1/client/auth",
+                   tags=["Client API - auth"])
+app.include_router(client_assortment_router,
+                   prefix="/api/v1/client/food",
+                   tags=["Client API - food"])
+app.include_router(client_payment_router,
+                   prefix="/api/v1/client/payment",
+                   tags=["Client API - payment"])
+app.include_router(client_favorite_food_router,
+                   prefix="/api/v1/client/favorite_food",
+                   tags=["Client API - favorite food"])
 
-app.include_router(user_router, prefix="/api/v1/user", tags=["Internal API - user"])
-app.include_router(shop_router, prefix="/api/v1/food", tags=["Internal API - food"])
-app.include_router(management_router, prefix="/api/v1/management", tags=["Internal API - management"])
+
+"""Admin API endpoints"""
+app.include_router(user_router,
+                   prefix="/api/v1/user",
+                   tags=["Internal API - user"])
+app.include_router(shop_router,
+                   prefix="/api/v1/food",
+                   tags=["Internal API - food"])
+app.include_router(management_router,
+                   prefix="/api/v1/management",
+                   tags=["Internal API - management"])
+app.include_router(payment_router,
+                   prefix="/api/v1/payment",
+                   tags=["Internal API - payment"])
 
 
 @app.on_event("startup")
@@ -50,8 +71,3 @@ async def startup() -> None:
             await conn.run_sync(Base.metadata.create_all)
     except asyncio.exceptions.CancelledError:
         print("Server was stopped.")
-
-
-@app.get("/")
-async def index():
-    return {"message": "Hello world"}

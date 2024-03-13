@@ -19,7 +19,7 @@ auth_router = APIRouter()
 
 
 @auth_router.post("/registration")
-async def registration(form_data: SignupSchema = Depends(),
+async def register_user_endpoint(form_data: SignupSchema = Depends(),
                        db: AsyncSession = Depends(get_db)):
     signup_manager = SignupManager(form_data, db)
     result = await signup_manager.register_user()
@@ -34,14 +34,21 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return result
 
 
-#@auth_router.post("/refresh-token", response_model=TokenRefreshSchema)
-#async def refresh_token(refresh_token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(async_session)):
-#    try:
-#        return await RefreshTokenManager.refresh(refresh_token)
-#    except HTTPException as e:
-#        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+@auth_router.post("/signup/send-code")
+async def verify_user_endpoint():
+    ...
 
 
-@auth_router.post("/secret")
-async def secret(current_user: User = Depends(get_current_user)):
-    return current_user.username
+@auth_router.post("/signup/verify-code")
+async def verify_user_endpoint():
+    ...
+
+
+@auth_router.post("/change-password/send-code")
+async def change_password_endpoint():
+    ...
+
+
+@auth_router.post("/change-password/verify-code")
+async def change_password_endpoint():
+    ...
